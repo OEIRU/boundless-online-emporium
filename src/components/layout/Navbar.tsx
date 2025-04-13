@@ -31,14 +31,14 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <h1 className="text-2xl font-bold text-store-purple">WildStore</h1>
+            <h1 className="text-2xl font-bold text-store-purple">ВайлдСтор</h1>
           </Link>
 
           {/* Search bar - hidden on mobile */}
           <div className="hidden md:flex relative flex-1 mx-10 max-w-xl">
             <Input
               type="text"
-              placeholder="Search for products..."
+              placeholder="Поиск товаров..."
               className="w-full pr-10"
             />
             <Button size="icon" variant="ghost" className="absolute right-0 top-0">
@@ -56,13 +56,13 @@ const Navbar = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem>
-                  <Link to="/login" className="w-full">Sign In</Link>
+                  <Link to="/login" className="w-full">Войти</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Link to="/register" className="w-full">Register</Link>
+                  <Link to="/register" className="w-full">Регистрация</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Link to="/account" className="w-full">My Account</Link>
+                  <Link to="/account" className="w-full">Мой аккаунт</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -101,7 +101,7 @@ const Navbar = () => {
             <div className="relative mb-3">
               <Input
                 type="text"
-                placeholder="Search for products..."
+                placeholder="Поиск товаров..."
                 className="w-full pr-10"
               />
               <Button size="icon" variant="ghost" className="absolute right-0 top-0">
@@ -109,9 +109,9 @@ const Navbar = () => {
               </Button>
             </div>
             <div className="flex justify-between">
-              <Link to="/login" className="block py-2 px-3 rounded hover:bg-gray-100">Account</Link>
-              <Link to="/wishlist" className="block py-2 px-3 rounded hover:bg-gray-100">Wishlist</Link>
-              <Link to="/cart" className="block py-2 px-3 rounded hover:bg-gray-100">Cart</Link>
+              <Link to="/login" className="block py-2 px-3 rounded hover:bg-gray-100">Аккаунт</Link>
+              <Link to="/wishlist" className="block py-2 px-3 rounded hover:bg-gray-100">Избранное</Link>
+              <Link to="/cart" className="block py-2 px-3 rounded hover:bg-gray-100">Корзина</Link>
             </div>
           </div>
         )}

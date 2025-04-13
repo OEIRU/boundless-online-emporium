@@ -10,7 +10,7 @@ const Index = () => {
       <HeroBanner />
       <div className="my-8">
         <FeaturedProducts />
-        <ProductGrid title="New Arrivals" />
+        <ProductGrid title="Новые поступления" />
       </div>
     </PageLayout>
   );

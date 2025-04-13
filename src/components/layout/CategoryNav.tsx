@@ -3,14 +3,14 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const categories = [
-  { id: 1, name: 'Women', path: '/category/women' },
-  { id: 2, name: 'Men', path: '/category/men' },
-  { id: 3, name: 'Kids', path: '/category/kids' },
-  { id: 4, name: 'Home', path: '/category/home' },
-  { id: 5, name: 'Electronics', path: '/category/electronics' },
-  { id: 6, name: 'Beauty', path: '/category/beauty' },
-  { id: 7, name: 'Sports', path: '/category/sports' },
-  { id: 8, name: 'Shoes', path: '/category/shoes' }
+  { id: 1, name: 'Женщинам', path: '/category/women' },
+  { id: 2, name: 'Мужчинам', path: '/category/men' },
+  { id: 3, name: 'Детям', path: '/category/kids' },
+  { id: 4, name: 'Дом', path: '/category/home' },
+  { id: 5, name: 'Электроника', path: '/category/electronics' },
+  { id: 6, name: 'Красота', path: '/category/beauty' },
+  { id: 7, name: 'Спорт', path: '/category/sports' },
+  { id: 8, name: 'Обувь', path: '/category/shoes' }
 ];
 
 const CategoryNav = () => {

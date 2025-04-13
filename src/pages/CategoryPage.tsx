@@ -40,18 +40,35 @@ const CategoryPage = () => {
     // Reset other filters
   };
   
-  const capitalizedCategory = category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Products';
+  // Отображение категорий на русском языке
+  const getCategoryName = (categorySlug: string | undefined): string => {
+    if (!categorySlug) return 'Товары';
+    
+    switch(categorySlug) {
+      case 'women': return 'Женщинам';
+      case 'men': return 'Мужчинам';
+      case 'kids': return 'Детям';
+      case 'home': return 'Дом';
+      case 'electronics': return 'Электроника';
+      case 'beauty': return 'Красота';
+      case 'sports': return 'Спорт';
+      case 'shoes': return 'Обувь';
+      default: return categorySlug.charAt(0).toUpperCase() + categorySlug.slice(1);
+    }
+  };
+  
+  const capitalizedCategory = getCategoryName(category);
   
   return (
     <PageLayout>
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">{capitalizedCategory}</h1>
-        <p className="text-gray-600">Browse our collection of {category} products</p>
+        <p className="text-gray-600">Просмотрите нашу коллекцию товаров для категории {capitalizedCategory.toLowerCase()}</p>
       </div>
       
       {/* Mobile Filter Toggle Button */}
       <div className="flex justify-between items-center mb-6 md:hidden">
-        <span className="text-sm text-gray-500">Showing 24 products</span>
+        <span className="text-sm text-gray-500">Показано 24 товара</span>
         <Button 
           variant="outline" 
           size="sm" 
@@ -59,7 +76,7 @@ const CategoryPage = () => {
           className="flex items-center gap-2"
         >
           <SlidersHorizontal className="h-4 w-4" />
-          Filters
+          Фильтры
         </Button>
       </div>
       
@@ -70,22 +87,22 @@ const CategoryPage = () => {
         } md:block bg-white p-4 md:p-0 rounded-lg md:bg-transparent md:rounded-none fixed inset-0 z-40 md:relative md:z-0 overflow-auto`}>
           <div className="md:sticky md:top-28">
             <div className="flex justify-between items-center mb-6 md:hidden">
-              <h2 className="font-bold text-lg">Filters</h2>
+              <h2 className="font-bold text-lg">Фильтры</h2>
               <Button variant="ghost" size="sm" onClick={toggleFilters}>
                 <FilterX className="h-5 w-5" />
               </Button>
             </div>
             
             <div className="flex justify-between items-center mb-4">
-              <h2 className="font-semibold">Filters</h2>
+              <h2 className="font-semibold">Фильтры</h2>
               <Button variant="ghost" size="sm" onClick={clearFilters} className="text-store-purple">
-                Clear All
+                Очистить все
               </Button>
             </div>
             
             <Accordion type="multiple" defaultValue={["price", "brand", "size"]}>
               <AccordionItem value="price" className="border-b">
-                <AccordionTrigger className="py-3">Price Range</AccordionTrigger>
+                <AccordionTrigger className="py-3">Диапазон цен</AccordionTrigger>
                 <AccordionContent>
                   <div className="mt-2 mb-6">
                     <Slider
@@ -98,11 +115,11 @@ const CategoryPage = () => {
                     />
                     <div className="flex items-center justify-between">
                       <div className="border rounded p-2 text-sm">
-                        ${priceRange[0]}
+                        ₽{priceRange[0]}
                       </div>
                       <div className="text-gray-500">-</div>
                       <div className="border rounded p-2 text-sm">
-                        ${priceRange[1]}
+                        ₽{priceRange[1]}
                       </div>
                     </div>
                   </div>
@@ -110,7 +127,7 @@ const CategoryPage = () => {
               </AccordionItem>
               
               <AccordionItem value="brand" className="border-b">
-                <AccordionTrigger className="py-3">Brand</AccordionTrigger>
+                <AccordionTrigger className="py-3">Бренд</AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-2">
                     {["Nike", "Adidas", "Puma", "Reebok", "Under Armour"].map((brand) => (
@@ -124,7 +141,7 @@ const CategoryPage = () => {
               </AccordionItem>
               
               <AccordionItem value="size" className="border-b">
-                <AccordionTrigger className="py-3">Size</AccordionTrigger>
+                <AccordionTrigger className="py-3">Размер</AccordionTrigger>
                 <AccordionContent>
                   <div className="grid grid-cols-3 gap-2">
                     {["XS", "S", "M", "L", "XL", "XXL"].map((size) => (
@@ -141,16 +158,16 @@ const CategoryPage = () => {
               </AccordionItem>
               
               <AccordionItem value="color" className="border-b">
-                <AccordionTrigger className="py-3">Color</AccordionTrigger>
+                <AccordionTrigger className="py-3">Цвет</AccordionTrigger>
                 <AccordionContent>
                   <div className="flex flex-wrap gap-2">
                     {[
-                      { name: "Black", color: "#000000" },
-                      { name: "White", color: "#FFFFFF", border: true },
-                      { name: "Red", color: "#FF0000" },
-                      { name: "Blue", color: "#0000FF" },
-                      { name: "Green", color: "#00FF00" },
-                      { name: "Yellow", color: "#FFFF00" },
+                      { name: "Черный", color: "#000000" },
+                      { name: "Белый", color: "#FFFFFF", border: true },
+                      { name: "Красный", color: "#FF0000" },
+                      { name: "Синий", color: "#0000FF" },
+                      { name: "Зеленый", color: "#00FF00" },
+                      { name: "Желтый", color: "#FFFF00" },
                     ].map((color) => (
                       <div
                         key={color.name}
@@ -167,10 +184,10 @@ const CategoryPage = () => {
               </AccordionItem>
               
               <AccordionItem value="discount" className="border-b">
-                <AccordionTrigger className="py-3">Discount</AccordionTrigger>
+                <AccordionTrigger className="py-3">Скидка</AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-2">
-                    {["10% or more", "20% or more", "30% or more", "40% or more", "50% or more"].map((discount) => (
+                    {["10% или больше", "20% или больше", "30% или больше", "40% или больше", "50% или больше"].map((discount) => (
                       <div key={discount} className="flex items-center space-x-2">
                         <Checkbox id={`discount-${discount}`} />
                         <Label htmlFor={`discount-${discount}`} className="text-sm cursor-pointer">{discount}</Label>
@@ -183,7 +200,7 @@ const CategoryPage = () => {
             
             <div className="mt-6 py-4 md:hidden">
               <Button className="w-full bg-store-purple hover:bg-store-purple-dark" onClick={toggleFilters}>
-                Apply Filters
+                Применить фильтры
               </Button>
             </div>
           </div>
@@ -193,19 +210,19 @@ const CategoryPage = () => {
         <div className="md:col-span-3">
           {/* Sort and Results Count */}
           <div className="flex justify-between items-center mb-6">
-            <span className="text-sm text-gray-500 hidden md:block">Showing 24 products</span>
+            <span className="text-sm text-gray-500 hidden md:block">Показано 24 товара</span>
             <div className="flex items-center space-x-2 ml-auto">
-              <span className="text-sm text-gray-500 mr-2">Sort by:</span>
+              <span className="text-sm text-gray-500 mr-2">Сортировать по:</span>
               <Select defaultValue="featured">
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Sort by" />
+                  <SelectValue placeholder="Сортировать по" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="featured">Featured</SelectItem>
-                  <SelectItem value="newest">Newest</SelectItem>
-                  <SelectItem value="price-asc">Price: Low to High</SelectItem>
-                  <SelectItem value="price-desc">Price: High to Low</SelectItem>
-                  <SelectItem value="rating">Customer Rating</SelectItem>
+                  <SelectItem value="featured">Популярности</SelectItem>
+                  <SelectItem value="newest">Новизне</SelectItem>
+                  <SelectItem value="price-asc">Цена: по возрастанию</SelectItem>
+                  <SelectItem value="price-desc">Цена: по убыванию</SelectItem>
+                  <SelectItem value="rating">Рейтингу</SelectItem>
                 </SelectContent>
               </Select>
             </div>
