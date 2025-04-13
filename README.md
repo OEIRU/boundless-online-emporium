@@ -1,73 +1,83 @@
-# Welcome to your Lovable project
 
-## Project info
+# WildStore - Online E-commerce Platform
 
-**URL**: https://lovable.dev/projects/dc693690-397f-4ed2-9aa4-6512678c1aba
+A modern e-commerce platform built with React, Node.js, and MongoDB, containerized using Docker.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- Responsive product catalog with categories
+- Product search and filtering
+- Shopping cart functionality
+- User authentication
+- Wishlist management
+- Order processing and management
+- Admin dashboard (coming soon)
 
-**Use Lovable**
+## Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/dc693690-397f-4ed2-9aa4-6512678c1aba) and start prompting.
+- **Frontend**: React, Tailwind CSS, shadcn/ui
+- **Backend**: Node.js, Express
+- **Database**: MongoDB
+- **Containerization**: Docker, Docker Compose
 
-Changes made via Lovable will be committed automatically to this repo.
+## Getting Started
 
-**Use your preferred IDE**
+### Prerequisites
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Docker and Docker Compose installed on your machine
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Running the Application
 
-Follow these steps:
+1. Clone the repository:
+   ```
+   git clone <repository-url>
+   cd wildstore
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+2. Start the application using Docker Compose:
+   ```
+   docker-compose up -d
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+3. Access the application:
+   - Frontend: http://localhost
+   - Backend API: http://localhost:3000/api
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Project Structure
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+.
+├── src/                 # Frontend React application
+├── server/              # Backend Node.js API
+│   ├── src/             # API source code
+│   │   ├── models/      # MongoDB models
+│   │   ├── routes/      # API routes
+│   │   └── index.js     # API entry point
+│   ├── Dockerfile       # Backend Dockerfile
+│   └── package.json     # Backend dependencies
+├── Dockerfile           # Frontend Dockerfile
+├── docker-compose.yml   # Docker Compose configuration
+├── nginx.conf           # Nginx configuration for frontend
+└── README.md            # Project documentation
 ```
 
-**Edit a file directly in GitHub**
+## Development
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+For local development without Docker:
 
-**Use GitHub Codespaces**
+1. Start the backend:
+   ```
+   cd server
+   npm install
+   npm run dev
+   ```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+2. Start the frontend:
+   ```
+   npm install
+   npm run dev
+   ```
 
-## What technologies are used for this project?
+## License
 
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/dc693690-397f-4ed2-9aa4-6512678c1aba) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This project is licensed under the MIT License.
