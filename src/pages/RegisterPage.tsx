@@ -30,12 +30,15 @@ const formSchema = z.object({
   path: ["confirmPassword"],
 });
 
+// Define a type for form values 
+type FormValues = z.infer<typeof formSchema>;
+
 const RegisterPage = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       firstName: '',
@@ -47,11 +50,18 @@ const RegisterPage = () => {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: FormValues) => {
     try {
       setIsSubmitting(true);
       const { confirmPassword, ...userData } = values;
-      await register(userData);
+      // Explicitly create an object with the required properties
+      await register({
+        email: userData.email,
+        password: userData.password,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        phoneNumber: userData.phoneNumber,
+      });
       navigate('/profile');
     } catch (error) {
       console.error('Ошибка регистрации:', error);
