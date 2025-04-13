@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
   ShoppingCart, 
@@ -7,23 +7,36 @@ import {
   User, 
   Menu, 
   X, 
-  Heart 
+  Heart,
+  LogIn,
+  LogOut,
+  UserCircle
 } from "lucide-react";
 import { 
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [cartItemCount, setCartItemCount] = useState(0);
+  const { user, logout, isAuthenticated } = useAuth();
+  const { cart } = useCart();
+  const cartItemCount = cart.items.reduce((count, item) => count + item.quantity, 0);
   
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  // Close mobile menu when navigating
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location]);
 
   return (
     <nav className="sticky top-0 z-50 bg-white shadow-sm">
@@ -55,21 +68,49 @@ const Navbar = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  <Link to="/login" className="w-full">Войти</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link to="/register" className="w-full">Регистрация</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link to="/account" className="w-full">Мой аккаунт</Link>
-                </DropdownMenuItem>
+                {isAuthenticated ? (
+                  <>
+                    <DropdownMenuItem className="font-medium text-sm text-gray-500 cursor-default">
+                      Привет, {user?.firstName}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <Link to="/profile" className="w-full flex items-center">
+                        <UserCircle className="h-4 w-4 mr-2" />
+                        Мой профиль
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <button onClick={logout} className="w-full flex items-center">
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Выйти
+                      </button>
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <>
+                    <DropdownMenuItem>
+                      <Link to="/login" className="w-full flex items-center">
+                        <LogIn className="h-4 w-4 mr-2" />
+                        Войти
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link to="/register" className="w-full flex items-center">
+                        <User className="h-4 w-4 mr-2" />
+                        Регистрация
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
             
-            <Button variant="ghost" size="icon">
-              <Heart className="h-5 w-5" />
-            </Button>
+            <Link to="/wishlist">
+              <Button variant="ghost" size="icon">
+                <Heart className="h-5 w-5" />
+              </Button>
+            </Link>
             
             <Link to="/cart">
               <Button variant="ghost" size="icon" className="relative">
@@ -108,10 +149,41 @@ const Navbar = () => {
                 <Search className="h-4 w-4" />
               </Button>
             </div>
-            <div className="flex justify-between">
-              <Link to="/login" className="block py-2 px-3 rounded hover:bg-gray-100">Аккаунт</Link>
-              <Link to="/wishlist" className="block py-2 px-3 rounded hover:bg-gray-100">Избранное</Link>
-              <Link to="/cart" className="block py-2 px-3 rounded hover:bg-gray-100">Корзина</Link>
+            <div className="flex flex-col space-y-2">
+              {isAuthenticated ? (
+                <>
+                  <Link to="/profile" className="flex items-center py-2 px-3 rounded hover:bg-gray-100">
+                    <UserCircle className="h-4 w-4 mr-2" />
+                    Мой профиль
+                  </Link>
+                  <button 
+                    onClick={logout} 
+                    className="flex items-center py-2 px-3 rounded hover:bg-gray-100 text-left"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Выйти
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" className="flex items-center py-2 px-3 rounded hover:bg-gray-100">
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Войти
+                  </Link>
+                  <Link to="/register" className="flex items-center py-2 px-3 rounded hover:bg-gray-100">
+                    <User className="h-4 w-4 mr-2" />
+                    Регистрация
+                  </Link>
+                </>
+              )}
+              <Link to="/wishlist" className="flex items-center py-2 px-3 rounded hover:bg-gray-100">
+                <Heart className="h-4 w-4 mr-2" />
+                Избранное
+              </Link>
+              <Link to="/cart" className="flex items-center py-2 px-3 rounded hover:bg-gray-100">
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                Корзина {cartItemCount > 0 && `(${cartItemCount})`}
+              </Link>
             </div>
           </div>
         )}
