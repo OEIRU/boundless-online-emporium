@@ -106,11 +106,14 @@ const getStatusBadge = (status: string) => {
     case 'pending':
       return { label: 'Ожидает', variant: 'secondary' as const };
     case 'processing':
-      return { label: 'Обработка', variant: 'warning' as const };
+      // Changed from warning to secondary
+      return { label: 'Обработка', variant: 'secondary' as const };
     case 'shipped':
-      return { label: 'Отправлен', variant: 'primary' as const };
+      // Changed from primary to default
+      return { label: 'Отправлен', variant: 'default' as const };
     case 'delivered':
-      return { label: 'Доставлен', variant: 'success' as const };
+      // Changed from success to default
+      return { label: 'Доставлен', variant: 'default' as const };
     case 'cancelled':
       return { label: 'Отменен', variant: 'destructive' as const };
     default:
@@ -360,7 +363,7 @@ const AdminOrderDetail = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-500">Статус:</span>
-                  <Badge variant={order.paymentStatus === 'paid' ? 'success' : 'warning'}>
+                  <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'secondary'}>
                     {order.paymentStatus === 'paid' ? 'Оплачено' : 'Ожидает'}
                   </Badge>
                 </div>

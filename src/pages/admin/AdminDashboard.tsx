@@ -138,7 +138,8 @@ const AdminDashboard = () => {
                       fill="#8884d8"
                       radius={[4, 4, 0, 0]}
                       name="Доход"
-                      formatter={(value: number) => [`₽${value}`, "Доход"]}
+                      // Changed from formatter to format
+                      format={(value: number) => [`₽${value}`, "Доход"]}
                     />
                   </BarChart>
                 </ResponsiveContainer>

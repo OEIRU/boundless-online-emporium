@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -29,9 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Mock function to fetch orders
 const fetchOrders = async () => {
-  // In a real application, you'd make a real API call here
   const mockOrders = [
     {
       orderId: 'ORD-1001',
@@ -100,7 +97,6 @@ const fetchOrders = async () => {
   return { orders: mockOrders };
 };
 
-// Helper function to format date
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   return new Intl.DateTimeFormat('ru-RU', { 
@@ -112,17 +108,16 @@ const formatDate = (dateString: string) => {
   }).format(date);
 };
 
-// Helper function to get badge variant based on status
 const getStatusBadge = (status: string) => {
   switch (status) {
     case 'pending':
       return { label: 'Ожидает', variant: 'secondary' as const };
     case 'processing':
-      return { label: 'Обработка', variant: 'warning' as const };
+      return { label: 'Обработка', variant: 'secondary' as const };
     case 'shipped':
-      return { label: 'Отправлен', variant: 'primary' as const };
+      return { label: 'Отправлен', variant: 'default' as const };
     case 'delivered':
-      return { label: 'Доставлен', variant: 'success' as const };
+      return { label: 'Доставлен', variant: 'default' as const };
     case 'cancelled':
       return { label: 'Отменен', variant: 'destructive' as const };
     default:
