@@ -14,6 +14,10 @@ const Footer = () => {
               <li><Link to="/category/men" className="text-gray-300 hover:text-white">Мужчинам</Link></li>
               <li><Link to="/category/kids" className="text-gray-300 hover:text-white">Детям</Link></li>
               <li><Link to="/category/home" className="text-gray-300 hover:text-white">Дом</Link></li>
+              <li><Link to="/category/electronics" className="text-gray-300 hover:text-white">Электроника</Link></li>
+              <li><Link to="/category/beauty" className="text-gray-300 hover:text-white">Красота</Link></li>
+              <li><Link to="/category/sports" className="text-gray-300 hover:text-white">Спорт</Link></li>
+              <li><Link to="/category/shoes" className="text-gray-300 hover:text-white">Обувь</Link></li>
             </ul>
           </div>
           
@@ -32,10 +36,10 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">О нас</h3>
             <ul className="space-y-2">
-              <li><Link to="/about" className="text-gray-300 hover:text-white">Наша история</Link></li>
-              <li><Link to="/careers" className="text-gray-300 hover:text-white">Вакансии</Link></li>
-              <li><Link to="/press" className="text-gray-300 hover:text-white">Пресса</Link></li>
-              <li><Link to="/sustainability" className="text-gray-300 hover:text-white">Устойчивое развитие</Link></li>
+              <li><Link to="/about/history" className="text-gray-300 hover:text-white">Наша история</Link></li>
+              <li><Link to="/about/careers" className="text-gray-300 hover:text-white">Вакансии</Link></li>
+              <li><Link to="/about/press" className="text-gray-300 hover:text-white">Пресса</Link></li>
+              <li><Link to="/about/sustainability" className="text-gray-300 hover:text-white">Устойчивое развитие</Link></li>
             </ul>
           </div>
           

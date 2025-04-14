@@ -29,6 +29,17 @@ import HelpPage from "./pages/help/HelpPage";
 import { useEffect } from "react";
 import { logService } from "./services/LogService";
 
+// About pages
+import HistoryPage from "./pages/about/HistoryPage";
+import CareersPage from "./pages/about/CareersPage";
+import PressPage from "./pages/about/PressPage";
+import SustainabilityPage from "./pages/about/SustainabilityPage";
+
+// Legal pages
+import TermsPage from "./pages/legal/TermsPage";
+import PrivacyPage from "./pages/legal/PrivacyPage";
+import CookiesPage from "./pages/legal/CookiesPage";
+
 // Создаем новый экземпляр QueryClient с настройками для обработки ошибок и кэширования
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -69,6 +80,17 @@ const App = () => {
                 <Route path="/help" element={<HelpPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/faq" element={<FAQPage />} />
+                
+                {/* Страницы о компании */}
+                <Route path="/about/history" element={<HistoryPage />} />
+                <Route path="/about/careers" element={<CareersPage />} />
+                <Route path="/about/press" element={<PressPage />} />
+                <Route path="/about/sustainability" element={<SustainabilityPage />} />
+                
+                {/* Юридические страницы */}
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/cookies" element={<CookiesPage />} />
                 
                 {/* Admin Routes */}
                 <Route path="/admin" element={

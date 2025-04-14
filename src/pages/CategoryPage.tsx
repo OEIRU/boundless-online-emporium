@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
 import ProductGrid from '@/components/products/ProductGrid';
 import { Button } from '@/components/ui/button';
@@ -21,11 +21,31 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { FilterX, SlidersHorizontal } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 const CategoryPage = () => {
   const { category } = useParams<{ category: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { toast } = useToast();
   const [showFilters, setShowFilters] = useState(false);
   const [priceRange, setPriceRange] = useState([0, 500]);
+  const [sortOption, setSortOption] = useState("featured");
+  const [loading, setLoading] = useState(false);
+  
+  // Применяем параметры из URL при загрузке
+  useEffect(() => {
+    const minPrice = searchParams.get('min_price');
+    const maxPrice = searchParams.get('max_price');
+    const sort = searchParams.get('sort');
+    
+    if (minPrice && maxPrice) {
+      setPriceRange([parseInt(minPrice), parseInt(maxPrice)]);
+    }
+    
+    if (sort) {
+      setSortOption(sort);
+    }
+  }, [searchParams]);
   
   const toggleFilters = () => {
     setShowFilters(!showFilters);
@@ -33,11 +53,41 @@ const CategoryPage = () => {
 
   const handlePriceChange = (value: number[]) => {
     setPriceRange(value);
+    updateSearchParams('min_price', value[0].toString());
+    updateSearchParams('max_price', value[1].toString());
+  };
+  
+  const handleSortChange = (value: string) => {
+    setSortOption(value);
+    updateSearchParams('sort', value);
+    
+    setLoading(true);
+    // Имитация загрузки данных
+    setTimeout(() => {
+      setLoading(false);
+      toast({
+        title: "Сортировка применена",
+        description: "Товары отсортированы по выбранному параметру",
+        duration: 1500,
+      });
+    }, 500);
+  };
+  
+  const updateSearchParams = (key: string, value: string) => {
+    searchParams.set(key, value);
+    setSearchParams(searchParams);
   };
   
   const clearFilters = () => {
     setPriceRange([0, 500]);
-    // Reset other filters
+    setSortOption("featured");
+    setSearchParams(new URLSearchParams());
+    
+    toast({
+      title: "Фильтры сброшены",
+      description: "Все фильтры были сброшены",
+      duration: 1500,
+    });
   };
   
   // Отображение категорий на русском языке
@@ -213,7 +263,7 @@ const CategoryPage = () => {
             <span className="text-sm text-gray-500 hidden md:block">Показано 24 товара</span>
             <div className="flex items-center space-x-2 ml-auto">
               <span className="text-sm text-gray-500 mr-2">Сортировать по:</span>
-              <Select defaultValue="featured">
+              <Select value={sortOption} onValueChange={handleSortChange}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Сортировать по" />
                 </SelectTrigger>
@@ -229,7 +279,20 @@ const CategoryPage = () => {
           </div>
           
           {/* Products */}
-          <ProductGrid title="" categoryFilter={capitalizedCategory} />
+          {loading ? (
+            <div className="flex justify-center py-20">
+              <div className="animate-pulse text-center">
+                <p className="text-gray-500">Загрузка товаров...</p>
+              </div>
+            </div>
+          ) : (
+            <ProductGrid 
+              title="" 
+              categoryFilter={capitalizedCategory} 
+              sortOption={sortOption}
+              priceRange={priceRange}
+            />
+          )}
         </div>
       </div>
     </PageLayout>

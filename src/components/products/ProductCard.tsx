@@ -57,7 +57,7 @@ const ProductCard = ({ id, title, price, originalPrice, image, category }: Produ
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
   
   return (
-    <Link to={`/product/${id}`}>
+    <Link to={`/product/${id}`} className="block h-full">
       <Card className="product-card h-full flex flex-col">
         <div className="relative overflow-hidden">
           {discount > 0 && (
