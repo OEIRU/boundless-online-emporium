@@ -3,6 +3,10 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const { authenticate, rateLimiter } = require('../middleware/authMiddleware');
+
+// Apply rate limiting to sensitive routes
+router.use(['/login', '/register'], rateLimiter);
 
 // Register a new user
 router.post('/register', async (req, res) => {
@@ -30,6 +34,14 @@ router.post('/register', async (req, res) => {
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '7d' }
     );
+    
+    // Set secure cookie with token
+    res.cookie('authToken', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
     
     res.status(201).json({
       message: 'User registered successfully',
@@ -69,6 +81,14 @@ router.post('/login', async (req, res) => {
       { expiresIn: '7d' }
     );
     
+    // Set secure cookie with token
+    res.cookie('authToken', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+    
     res.json({
       message: 'Login successful',
       token,
@@ -85,12 +105,16 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Logout user
+router.post('/logout', (req, res) => {
+  res.clearCookie('authToken');
+  res.json({ message: 'Logged out successfully' });
+});
+
 // Get user profile (authenticated)
-router.get('/profile', async (req, res) => {
+router.get('/profile', authenticate, async (req, res) => {
   try {
-    // This would usually be protected by auth middleware
-    // For demo purposes, we're hard-coding userId
-    const userId = req.query.userId;
+    const userId = req.user.userId;
     
     const user = await User.findById(userId).select('-password');
     
@@ -105,10 +129,9 @@ router.get('/profile', async (req, res) => {
 });
 
 // Update user profile (authenticated)
-router.put('/profile', async (req, res) => {
+router.put('/profile', authenticate, async (req, res) => {
   try {
-    // This would usually be protected by auth middleware
-    const userId = req.body.userId;
+    const userId = req.user.userId;
     
     // Remove fields that shouldn't be updated directly
     const { password, role, ...updateData } = req.body;
@@ -129,10 +152,11 @@ router.put('/profile', async (req, res) => {
   }
 });
 
-// Add to wishlist
-router.post('/wishlist', async (req, res) => {
+// Add to wishlist (authenticated)
+router.post('/wishlist', authenticate, async (req, res) => {
   try {
-    const { userId, productId } = req.body;
+    const userId = req.user.userId;
+    const { productId } = req.body;
     
     const user = await User.findById(userId);
     
@@ -154,10 +178,10 @@ router.post('/wishlist', async (req, res) => {
   }
 });
 
-// Remove from wishlist
-router.delete('/wishlist/:productId', async (req, res) => {
+// Remove from wishlist (authenticated)
+router.delete('/wishlist/:productId', authenticate, async (req, res) => {
   try {
-    const userId = req.query.userId;
+    const userId = req.user.userId;
     const productId = req.params.productId;
     
     const user = await User.findById(userId);

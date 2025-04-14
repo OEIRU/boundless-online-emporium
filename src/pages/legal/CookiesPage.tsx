@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { cookieService } from "@/services/CookieService";
 
 const CookiesPage = () => {
   const { toast } = useToast();
@@ -20,7 +21,20 @@ const CookiesPage = () => {
     marketing: false,
   });
   
+  // Load existing cookie preferences
+  useEffect(() => {
+    const existingConsent = cookieService.getConsent();
+    setCookiePreferences({
+      necessary: true, // Always true
+      functional: existingConsent.functional ?? true,
+      analytics: existingConsent.analytics ?? true,
+      marketing: existingConsent.marketing ?? false,
+    });
+  }, []);
+  
   const handleSavePreferences = () => {
+    cookieService.setConsent(cookiePreferences);
+    
     toast({
       title: "Настройки сохранены",
       description: "Ваши предпочтения по использованию cookies успешно сохранены.",

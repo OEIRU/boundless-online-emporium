@@ -1,15 +1,38 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useLocation } from "react-router-dom";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
+import { getCsrfToken, generateCsrfToken, storeCsrfToken } from '@/utils/security';
+import { logService } from "@/services/LogService";
 
 interface RequireAuthProps {
   children: ReactNode;
 }
 
 const RequireAuth = ({ children }: RequireAuthProps) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, refreshToken } = useAuth();
   const location = useLocation();
+
+  // Ensure CSRF token is available
+  useEffect(() => {
+    if (!getCsrfToken()) {
+      const newToken = generateCsrfToken();
+      storeCsrfToken(newToken);
+      logService.debug('Generated new CSRF token');
+    }
+  }, []);
+  
+  // Periodically refresh the authentication token
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Try to refresh the token every 20 minutes
+      const refreshInterval = setInterval(() => {
+        refreshToken?.();
+      }, 20 * 60 * 1000);
+      
+      return () => clearInterval(refreshInterval);
+    }
+  }, [isAuthenticated, refreshToken]);
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-screen">Загрузка...</div>;
