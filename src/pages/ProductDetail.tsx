@@ -97,6 +97,63 @@ const products = [
       { name: 'Green', value: '#86EFAC' },
     ],
   },
+  // Добавляем новые товары для демонстрации функциональности
+  {
+    id: '4',
+    title: 'Running Shoes',
+    price: 89.99,
+    originalPrice: 119.99,
+    rating: 4.8,
+    reviewCount: 156,
+    description: 'Engineered for performance and comfort, these running shoes feature responsive cushioning and breathable mesh upper. The durable rubber outsole provides excellent traction on various surfaces, making them ideal for both daily runs and intense training sessions.',
+    images: [
+      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
+      'https://images.unsplash.com/photo-1608231387042-66d1773070a5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1674&q=80',
+      'https://images.unsplash.com/photo-1491553895911-0055eca6402d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80',
+    ],
+    category: 'Sports',
+    features: [
+      'Breathable mesh upper',
+      'Responsive cushioning',
+      'Durable rubber outsole',
+      'Lightweight design',
+      'Reflective details',
+    ],
+    sizes: ['7', '8', '9', '10', '11', '12'],
+    colors: [
+      { name: 'Black/Red', value: '#000000' },
+      { name: 'Blue/White', value: '#1e40af' },
+      { name: 'Gray/Orange', value: '#6B7280' },
+    ],
+  },
+  {
+    id: '5',
+    title: 'Leather Wallet',
+    price: 39.99,
+    originalPrice: 49.99,
+    rating: 4.6,
+    reviewCount: 92,
+    description: 'Crafted from genuine leather, this wallet combines classic style with modern functionality. With multiple card slots, bill compartments, and RFID protection, it keeps your essentials organized and secure. The slim design fits comfortably in your pocket.',
+    images: [
+      'https://images.unsplash.com/photo-1627123424574-724758594e93?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1738&q=80',
+      'https://images.unsplash.com/photo-1611010344444-5f9e4d86a6e1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2064&q=80',
+      'https://images.unsplash.com/photo-1640476576024-afe208227beb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1064&q=80',
+    ],
+    category: 'Accessories',
+    features: [
+      'Genuine leather',
+      'RFID protection',
+      'Multiple card slots',
+      'Bill compartments',
+      'Slim design',
+    ],
+    sizes: ['One Size'],
+    colors: [
+      { name: 'Brown', value: '#8B4513' },
+      { name: 'Black', value: '#000000' },
+      { name: 'Tan', value: '#D2B48C' },
+    ],
+  },
 ];
 
 const ProductDetail = () => {
@@ -108,19 +165,66 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const [product, setProduct] = useState(products[0]); // Инициализируем с первым продуктом
+  const [product, setProduct] = useState<typeof products[0] | null>(null);
+  const [loading, setLoading] = useState(true);
   
   // Находим соответствующий товар при изменении ID
   useEffect(() => {
-    const foundProduct = products.find(p => p.id === id);
-    if (foundProduct) {
-      setProduct(foundProduct);
-      setSelectedImage(0); // Сбрасываем выбранное изображение
-      setSelectedSize(''); // Сбрасываем размер
-      setSelectedColor(''); // Сбрасываем цвет
-      setQuantity(1); // Сбрасываем количество
-    }
+    setLoading(true);
+    // Имитация загрузки данных с сервера
+    setTimeout(() => {
+      const foundProduct = products.find(p => p.id === id);
+      if (foundProduct) {
+        setProduct(foundProduct);
+        setSelectedImage(0); // Сбрасываем выбранное изображение
+        setSelectedSize(''); // Сбрасываем размер
+        setSelectedColor(''); // Сбрасываем цвет
+        setQuantity(1); // Сбрасываем количество
+      } else {
+        // Если товар не найден, используем дефолтный первый товар
+        setProduct(products[0]);
+      }
+      setLoading(false);
+    }, 300);
   }, [id]);
+
+  // Если товар загружается или не найден, показываем заглушку
+  if (loading) {
+    return (
+      <PageLayout>
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-pulse space-y-8 w-full max-w-4xl">
+            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="aspect-square bg-gray-200 rounded"></div>
+              <div className="space-y-4">
+                <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                <div className="h-20 bg-gray-200 rounded"></div>
+                <div className="h-10 bg-gray-200 rounded"></div>
+                <div className="h-10 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </PageLayout>
+    );
+  }
+
+  if (!product) {
+    return (
+      <PageLayout>
+        <div className="py-20 text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Товар не найден</h2>
+          <p className="text-gray-600 mb-6">К сожалению, запрашиваемый товар не существует или был удален.</p>
+          <Button asChild>
+            <Link to="/">Вернуться на главную</Link>
+          </Button>
+        </div>
+      </PageLayout>
+    );
+  }
 
   const handleAddToCart = () => {
     if (!selectedSize) {
@@ -383,13 +487,12 @@ const ProductDetail = () => {
           </TabsList>
           <TabsContent value="details" className="pt-4">
             <div className="prose max-w-none">
-              <p>This premium cotton t-shirt offers exceptional comfort with its soft, breathable fabric. Perfect for everyday wear, its durable construction ensures it maintains its shape and color wash after wash.</p>
-              <p>The versatile design pairs easily with any outfit, making it a must-have addition to your wardrobe. Whether you're dressing up for a casual day out or lounging at home, this t-shirt provides both style and comfort.</p>
+              <p>{product.description}</p>
+              <p>The versatile design pairs easily with any outfit, making it a must-have addition to your wardrobe. Whether you're dressing up for a casual day out or lounging at home, this product provides both style and comfort.</p>
               <h3>Product Specifications</h3>
               <ul>
-                <li>Material: 100% Premium Cotton</li>
-                <li>Weight: Medium (180 GSM)</li>
-                <li>Care Instructions: Machine wash cold, tumble dry low</li>
+                <li>Material: Premium quality materials</li>
+                <li>Care Instructions: Please check the product label</li>
                 <li>Country of Origin: Imported</li>
               </ul>
             </div>
