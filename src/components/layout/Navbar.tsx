@@ -10,7 +10,8 @@ import {
   Heart,
   LogIn,
   LogOut,
-  UserCircle
+  UserCircle,
+  ShieldCheck
 } from "lucide-react";
 import { 
   DropdownMenu,
@@ -80,6 +81,14 @@ const Navbar = () => {
                         Мой профиль
                       </Link>
                     </DropdownMenuItem>
+                    {user?.role === 'admin' && (
+                      <DropdownMenuItem>
+                        <Link to="/admin" className="w-full flex items-center">
+                          <ShieldCheck className="h-4 w-4 mr-2" />
+                          Админ-панель
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem>
                       <button onClick={logout} className="w-full flex items-center">
                         <LogOut className="h-4 w-4 mr-2" />
@@ -99,6 +108,12 @@ const Navbar = () => {
                       <Link to="/register" className="w-full flex items-center">
                         <User className="h-4 w-4 mr-2" />
                         Регистрация
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link to="/admin-login" className="w-full flex items-center">
+                        <ShieldCheck className="h-4 w-4 mr-2" />
+                        Вход для админа
                       </Link>
                     </DropdownMenuItem>
                   </>
@@ -156,6 +171,12 @@ const Navbar = () => {
                     <UserCircle className="h-4 w-4 mr-2" />
                     Мой профиль
                   </Link>
+                  {user?.role === 'admin' && (
+                    <Link to="/admin" className="flex items-center py-2 px-3 rounded hover:bg-gray-100">
+                      <ShieldCheck className="h-4 w-4 mr-2" />
+                      Админ-панель
+                    </Link>
+                  )}
                   <button 
                     onClick={logout} 
                     className="flex items-center py-2 px-3 rounded hover:bg-gray-100 text-left"
@@ -173,6 +194,10 @@ const Navbar = () => {
                   <Link to="/register" className="flex items-center py-2 px-3 rounded hover:bg-gray-100">
                     <User className="h-4 w-4 mr-2" />
                     Регистрация
+                  </Link>
+                  <Link to="/admin-login" className="flex items-center py-2 px-3 rounded hover:bg-gray-100">
+                    <ShieldCheck className="h-4 w-4 mr-2" />
+                    Вход для админа
                   </Link>
                 </>
               )}

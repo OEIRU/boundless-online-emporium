@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, LineChart, ResponsiveContainer, XAxis, YAxis, Bar, Tooltip, Line, PieChart, Pie, Cell } from "recharts";
 import { CreditCard, DollarSign, Package, ShoppingCart, TrendingUp, Users } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const salesData = [
   { name: "Янв", total: 580 },
@@ -29,6 +30,8 @@ const productsData = [
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 const AdminDashboard = () => {
+  const isMobile = useIsMobile();
+
   return (
     <div className="space-y-6">
       <div>
@@ -39,7 +42,7 @@ const AdminDashboard = () => {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
+        <TabsList className="w-full md:w-auto flex flex-wrap">
           <TabsTrigger value="overview">Обзор</TabsTrigger>
           <TabsTrigger value="analytics">Аналитика</TabsTrigger>
         </TabsList>
@@ -108,7 +111,7 @@ const AdminDashboard = () => {
           </div>
           
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            <Card className="col-span-4">
+            <Card className={isMobile ? "col-span-1" : "col-span-4"}>
               <CardHeader>
                 <CardTitle>Обзор дохода</CardTitle>
                 <CardDescription>
@@ -116,7 +119,7 @@ const AdminDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="pl-2">
-                <ResponsiveContainer width="100%" height={350}>
+                <ResponsiveContainer width="100%" height={isMobile ? 200 : 350}>
                   <BarChart data={salesData}>
                     <XAxis
                       dataKey="name"
@@ -147,7 +150,7 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
             
-            <Card className="col-span-3">
+            <Card className={isMobile ? "col-span-1" : "col-span-3"}>
               <CardHeader>
                 <CardTitle>Распределение продаж по категориям</CardTitle>
                 <CardDescription>
@@ -155,15 +158,17 @@ const AdminDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="pl-2">
-                <ResponsiveContainer width="100%" height={350}>
+                <ResponsiveContainer width="100%" height={isMobile ? 200 : 350}>
                   <PieChart>
                     <Pie
                       data={productsData}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={100}
+                      label={({ name, percent }) => isMobile ? 
+                        `${(percent * 100).toFixed(0)}%` : 
+                        `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={isMobile ? 60 : 100}
                       fill="#8884d8"
                       dataKey="value"
                     >
@@ -189,7 +194,7 @@ const AdminDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="pl-2">
-                <ResponsiveContainer width="100%" height={350}>
+                <ResponsiveContainer width="100%" height={isMobile ? 200 : 350}>
                   <LineChart data={salesData}>
                     <XAxis
                       dataKey="name"
@@ -225,7 +230,7 @@ const AdminDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="pl-2">
-                <ResponsiveContainer width="100%" height={350}>
+                <ResponsiveContainer width="100%" height={isMobile ? 200 : 350}>
                   <LineChart data={salesData}>
                     <XAxis
                       dataKey="name"
