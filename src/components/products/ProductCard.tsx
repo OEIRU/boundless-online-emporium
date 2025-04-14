@@ -5,6 +5,7 @@ import { Heart, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
+import { useCart } from '@/contexts/CartContext';
 
 export interface ProductProps {
   id: string;
@@ -17,6 +18,7 @@ export interface ProductProps {
 
 const ProductCard = ({ id, title, price, originalPrice, image, category }: ProductProps) => {
   const { toast } = useToast();
+  const { addToCart } = useCart();
   const [isWishlisted, setIsWishlisted] = useState(false);
   
   const toggleWishlist = (e: React.MouseEvent) => {
@@ -25,18 +27,29 @@ const ProductCard = ({ id, title, price, originalPrice, image, category }: Produ
     setIsWishlisted(!isWishlisted);
     
     toast({
-      title: isWishlisted ? "Removed from wishlist" : "Added to wishlist",
+      title: isWishlisted ? "Удалено из избранного" : "Добавлено в избранное",
       duration: 1500,
     });
   };
   
-  const addToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
+    // Добавляем товар в корзину с базовыми параметрами
+    addToCart({
+      productId: id,
+      title: title,
+      price: price,
+      quantity: 1,
+      size: 'M', // Значение по умолчанию
+      color: 'Черный', // Значение по умолчанию
+      image: image
+    });
+    
     toast({
-      title: "Added to cart",
-      description: `${title} has been added to your cart`,
+      title: "Добавлено в корзину",
+      description: `${title} был добавлен в вашу корзину`,
       duration: 1500,
     });
   };
@@ -84,7 +97,7 @@ const ProductCard = ({ id, title, price, originalPrice, image, category }: Produ
               size="icon" 
               variant="ghost" 
               className="h-8 w-8 bg-store-purple text-white hover:bg-store-purple-dark"
-              onClick={addToCart}
+              onClick={handleAddToCart}
             >
               <ShoppingCart className="h-4 w-4" />
             </Button>

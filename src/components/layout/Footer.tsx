@@ -23,8 +23,8 @@ const Footer = () => {
             <ul className="space-y-2">
               <li><Link to="/contact" className="text-gray-300 hover:text-white">Связаться с нами</Link></li>
               <li><Link to="/faq" className="text-gray-300 hover:text-white">Частые вопросы</Link></li>
-              <li><Link to="/shipping" className="text-gray-300 hover:text-white">Доставка</Link></li>
-              <li><Link to="/returns" className="text-gray-300 hover:text-white">Возврат</Link></li>
+              <li><Link to="/help" className="text-gray-300 hover:text-white">Центр помощи</Link></li>
+              <li><Link to="/faq#returns" className="text-gray-300 hover:text-white">Возврат</Link></li>
             </ul>
           </div>
           

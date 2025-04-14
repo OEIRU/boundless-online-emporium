@@ -23,6 +23,9 @@ import AdminLayout from "./components/admin/AdminLayout";
 import AdminLogin from "./components/admin/AdminLogin";
 import RequireAuth from "./components/auth/RequireAuth";
 import RequireAdmin from "./components/auth/RequireAdmin";
+import ContactPage from "./pages/help/ContactPage";
+import FAQPage from "./pages/help/FAQPage";
+import HelpPage from "./pages/help/HelpPage";
 import { useEffect } from "react";
 import { logService } from "./services/LogService";
 
@@ -61,6 +64,11 @@ const App = () => {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/admin-login" element={<AdminLogin />} />
+                
+                {/* Страницы помощи */}
+                <Route path="/help" element={<HelpPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/faq" element={<FAQPage />} />
                 
                 {/* Admin Routes */}
                 <Route path="/admin" element={

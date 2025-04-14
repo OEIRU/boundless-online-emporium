@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Heart, ShoppingCart, Star, Truck, RotateCcw, CheckCircle, ChevronRight } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
@@ -7,52 +7,125 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PageLayout from '@/components/layout/PageLayout';
 import ProductGrid from '@/components/products/ProductGrid';
+import { useCart } from '@/contexts/CartContext';
 
-// Sample product data
-const product = {
-  id: '1',
-  title: 'Premium Cotton T-Shirt',
-  price: 29.99,
-  originalPrice: 39.99,
-  rating: 4.5,
-  reviewCount: 120,
-  description: 'This premium cotton t-shirt offers exceptional comfort with its soft, breathable fabric. Perfect for everyday wear, its durable construction ensures it maintains its shape and color wash after wash. The versatile design pairs easily with any outfit, making it a must-have addition to your wardrobe.',
-  images: [
-    'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1480&q=80',
-    'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1715&q=80',
-    'https://images.unsplash.com/photo-1562157873-818bc0726f68?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1754&q=80',
-  ],
-  category: 'Men',
-  features: [
-    '100% Premium Cotton',
-    'Reinforced stitching',
-    'Pre-shrunk fabric',
-    'Machine washable',
-    'Classic fit',
-  ],
-  sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-  colors: [
-    { name: 'White', value: '#FFFFFF', border: true },
-    { name: 'Black', value: '#000000' },
-    { name: 'Navy', value: '#0A142F' },
-    { name: 'Red', value: '#E63946' },
-    { name: 'Green', value: '#40916C' },
-  ],
-};
+// Каталог товаров (в реальном приложении это бы было получено с сервера)
+const products = [
+  {
+    id: '1',
+    title: 'Premium Cotton T-Shirt',
+    price: 29.99,
+    originalPrice: 39.99,
+    rating: 4.5,
+    reviewCount: 120,
+    description: 'This premium cotton t-shirt offers exceptional comfort with its soft, breathable fabric. Perfect for everyday wear, its durable construction ensures it maintains its shape and color wash after wash. The versatile design pairs easily with any outfit, making it a must-have addition to your wardrobe.',
+    images: [
+      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1480&q=80',
+      'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1715&q=80',
+      'https://images.unsplash.com/photo-1562157873-818bc0726f68?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1754&q=80',
+    ],
+    category: 'Men',
+    features: [
+      '100% Premium Cotton',
+      'Reinforced stitching',
+      'Pre-shrunk fabric',
+      'Machine washable',
+      'Classic fit',
+    ],
+    sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+    colors: [
+      { name: 'White', value: '#FFFFFF', border: true },
+      { name: 'Black', value: '#000000' },
+      { name: 'Navy', value: '#0A142F' },
+      { name: 'Red', value: '#E63946' },
+      { name: 'Green', value: '#40916C' },
+    ],
+  },
+  {
+    id: '2',
+    title: 'Designer Jeans',
+    price: 79.99,
+    originalPrice: 99.99,
+    rating: 4.2,
+    reviewCount: 85,
+    description: 'These premium designer jeans combine style and comfort with a perfect fit. Made from high-quality denim that offers just the right amount of stretch for all-day comfort. The classic cut and wash make them versatile for both casual and semi-formal occasions.',
+    images: [
+      'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80',
+      'https://images.unsplash.com/photo-1542272604-787c3835535d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1026&q=80',
+      'https://images.unsplash.com/photo-1582552938357-32b906df40cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1035&q=80',
+    ],
+    category: 'Men',
+    features: [
+      '98% Cotton, 2% Elastane',
+      'Premium denim fabric',
+      'Regular fit',
+      'Machine washable',
+      'Five-pocket styling',
+    ],
+    sizes: ['28', '30', '32', '34', '36', '38'],
+    colors: [
+      { name: 'Blue', value: '#1E40AF' },
+      { name: 'Black', value: '#000000' },
+      { name: 'Gray', value: '#6B7280' },
+    ],
+  },
+  {
+    id: '3',
+    title: 'Summer Floral Dress',
+    price: 49.99,
+    originalPrice: 69.99,
+    rating: 4.7,
+    reviewCount: 112,
+    description: 'This beautiful floral dress is perfect for summer days and special occasions. The lightweight fabric keeps you cool and comfortable, while the flattering cut and vibrant pattern ensure you look your best. Pair with sandals for a casual look or dress up with heels for evening events.',
+    images: [
+      'https://images.unsplash.com/photo-1595777457583-95e059d581b8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1383&q=80',
+      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1588&q=80',
+      'https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=930&q=80',
+    ],
+    category: 'Women',
+    features: [
+      '100% Rayon',
+      'Floral pattern',
+      'Midi length',
+      'V-neckline',
+      'Hand wash cold',
+    ],
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+    colors: [
+      { name: 'Blue', value: '#93C5FD' },
+      { name: 'Pink', value: '#F9A8D4' },
+      { name: 'Green', value: '#86EFAC' },
+    ],
+  },
+];
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
+  const { addToCart } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [product, setProduct] = useState(products[0]); // Инициализируем с первым продуктом
   
+  // Находим соответствующий товар при изменении ID
+  useEffect(() => {
+    const foundProduct = products.find(p => p.id === id);
+    if (foundProduct) {
+      setProduct(foundProduct);
+      setSelectedImage(0); // Сбрасываем выбранное изображение
+      setSelectedSize(''); // Сбрасываем размер
+      setSelectedColor(''); // Сбрасываем цвет
+      setQuantity(1); // Сбрасываем количество
+    }
+  }, [id]);
+
   const handleAddToCart = () => {
     if (!selectedSize) {
       toast({
-        title: 'Please select a size',
+        title: 'Выберите размер',
         variant: 'destructive',
       });
       return;
@@ -60,14 +133,25 @@ const ProductDetail = () => {
     
     if (!selectedColor) {
       toast({
-        title: 'Please select a color',
+        title: 'Выберите цвет',
         variant: 'destructive',
       });
       return;
     }
     
+    // Добавляем товар в корзину
+    addToCart({
+      productId: product.id,
+      title: product.title,
+      price: product.price,
+      quantity: quantity,
+      size: selectedSize,
+      color: selectedColor,
+      image: product.images[0]
+    });
+    
     toast({
-      title: 'Added to cart',
+      title: 'Добавлено в корзину',
       description: `${product.title} (${selectedSize}, ${selectedColor}) x ${quantity}`,
     });
   };
@@ -76,7 +160,7 @@ const ProductDetail = () => {
     setIsWishlisted(!isWishlisted);
     
     toast({
-      title: isWishlisted ? 'Removed from wishlist' : 'Added to wishlist',
+      title: isWishlisted ? 'Удалено из избранного' : 'Добавлено в избранное',
       description: product.title,
     });
   };
