@@ -132,14 +132,15 @@ const AdminDashboard = () => {
                       axisLine={false}
                       tickFormatter={(value) => `₽${value}`}
                     />
-                    <Tooltip />
+                    <Tooltip 
+                      formatter={(value: number) => [`₽${value}`, "Доход"]}
+                    />
                     <Bar
                       dataKey="total"
                       fill="#8884d8"
                       radius={[4, 4, 0, 0]}
                       name="Доход"
-                      // Changed from formatter to format
-                      format={(value: number) => [`₽${value}`, "Доход"]}
+                      // Removed the format property that was causing the error
                     />
                   </BarChart>
                 </ResponsiveContainer>
