@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Loader2, Filter, SlidersHorizontal } from 'lucide-react';
@@ -36,7 +35,6 @@ const SearchPage = () => {
   });
   const [availableCategories, setAvailableCategories] = useState<{id: string, name: string}[]>([]);
   
-  // Загрузка категорий
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -45,7 +43,6 @@ const SearchPage = () => {
           const data = await response.json();
           setAvailableCategories(data);
           
-          // Инициализируем фильтры категорий
           const categoryFilters = data.reduce((acc: Record<string, boolean>, category: {id: string, name: string}) => {
             acc[category.id] = false;
             return acc;
@@ -64,22 +61,17 @@ const SearchPage = () => {
     fetchCategories();
   }, []);
   
-  // Поиск при изменении запроса или фильтров
   useEffect(() => {
     if (searchQuery) {
       performSearch(searchQuery);
     }
   }, [searchQuery]);
   
-  // Обновляем URL при изменении строки запроса
   useEffect(() => {
     const newQueryParams = new URLSearchParams();
     if (searchQuery) {
       newQueryParams.set('q', searchQuery);
     }
-    
-    // Добавляем фильтры в URL
-    // Здесь можно добавить больше фильтров по мере необходимости
     
     const newUrl = `${location.pathname}?${newQueryParams.toString()}`;
     window.history.replaceState({}, '', newUrl);
@@ -88,13 +80,11 @@ const SearchPage = () => {
   const performSearch = async (query: string) => {
     setIsLoading(true);
     
-    // Формируем объект фильтров для API
     const apiFilters: Record<string, any> = {
       minPrice: filters.priceRange[0],
       maxPrice: filters.priceRange[1],
     };
     
-    // Добавляем выбранные категории
     const selectedCategories = Object.entries(filters.categories)
       .filter(([_, selected]) => selected)
       .map(([id]) => id);
@@ -145,11 +135,10 @@ const SearchPage = () => {
       <div className="container mx-auto px-4 py-6">
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-4">Поиск товаров</h1>
-          <SearchBox value={searchQuery} onSearch={handleSearch} className="max-w-xl" />
+          <SearchBox defaultValue={searchQuery} onSearch={handleSearch} className="max-w-xl" />
         </div>
         
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Мобильный фильтр */}
           <div className="lg:hidden mb-4">
             <Sheet>
               <SheetTrigger asChild>
@@ -216,7 +205,6 @@ const SearchPage = () => {
             </Sheet>
           </div>
           
-          {/* Десктопные фильтры */}
           <div className="hidden lg:block w-64 flex-shrink-0">
             <div className="bg-white p-4 rounded-lg border">
               <h2 className="font-medium text-lg mb-4 flex items-center">
@@ -271,7 +259,6 @@ const SearchPage = () => {
             </div>
           </div>
           
-          {/* Результаты поиска */}
           <div className="flex-1">
             <div className="bg-white p-4 rounded-lg border mb-4">
               <h2 className="text-lg font-medium">
@@ -294,10 +281,10 @@ const SearchPage = () => {
                   <ProductCard
                     key={product._id}
                     id={product._id}
-                    title={product.name} // Changed name to title which is what ProductCard expects
+                    title={product.name}
                     price={product.price}
-                    imageSrc={product.image || '/placeholder.svg'} // Changed image to imageSrc which is what ProductCard expects
-                    categoryName={product.category?.name} // Changed category to categoryName which is what ProductCard expects
+                    image={product.image || '/placeholder.svg'} 
+                    category={product.category?.name || 'Без категории'}
                   />
                 ))}
               </div>
