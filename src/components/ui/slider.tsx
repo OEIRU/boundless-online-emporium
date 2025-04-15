@@ -19,8 +19,9 @@ const Slider = React.forwardRef<
         result.value = result.value.map(v => 
           typeof v === 'number' && !isNaN(v) ? v : 0
         );
-      } else if (typeof result.value === 'number' && isNaN(result.value)) {
-        result.value = 0;
+      } else if (typeof result.value === 'number' && !isNaN(result.value)) {
+        // Convert single number to array since the component expects an array
+        result.value = [result.value];
       }
     }
     
@@ -29,8 +30,9 @@ const Slider = React.forwardRef<
         result.defaultValue = result.defaultValue.map(v => 
           typeof v === 'number' && !isNaN(v) ? v : 0
         );
-      } else if (typeof result.defaultValue === 'number' && isNaN(result.defaultValue)) {
-        result.defaultValue = 0;
+      } else if (typeof result.defaultValue === 'number' && !isNaN(result.defaultValue)) {
+        // Convert single number to array since the component expects an array
+        result.defaultValue = [result.defaultValue];
       }
     }
     

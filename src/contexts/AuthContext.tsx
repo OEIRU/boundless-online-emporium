@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
@@ -19,6 +18,7 @@ interface AuthContextType {
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
   updateProfile: (userData: Partial<User>) => Promise<void>;
+  refreshToken: () => Promise<void>;
 }
 
 interface RegisterData {
@@ -212,6 +212,38 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const refreshToken = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      
+      if (!token || !user) {
+        return;
+      }
+      
+      const response = await fetch('/api/users/refresh', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Ошибка обновления токена');
+      }
+
+      // Update token
+      localStorage.setItem('authToken', data.token);
+      
+    } catch (error) {
+      console.error('Ошибка при обновлении токена:', error);
+      // If token refresh fails, we don't log the user out immediately
+      // as they may still have a valid token
+    }
+  };
+
   return (
     <AuthContext.Provider 
       value={{ 
@@ -221,7 +253,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         login, 
         register, 
         logout, 
-        updateProfile 
+        updateProfile,
+        refreshToken
       }}
     >
       {children}
