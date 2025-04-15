@@ -152,6 +152,56 @@ router.put('/profile', authenticate, async (req, res) => {
   }
 });
 
+// Update user preferences (authenticated)
+router.put('/preferences', authenticate, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { preferences } = req.body;
+    
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { 
+        'preferences': preferences,
+        updatedAt: Date.now() 
+      },
+      { new: true }
+    ).select('-password');
+    
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Update user avatar (authenticated)
+router.put('/avatar', authenticate, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { avatar } = req.body;
+    
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { 
+        avatar,
+        updatedAt: Date.now() 
+      },
+      { new: true }
+    ).select('-password');
+    
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 // Add to wishlist (authenticated)
 router.post('/wishlist', authenticate, async (req, res) => {
   try {
@@ -195,6 +245,124 @@ router.delete('/wishlist/:productId', authenticate, async (req, res) => {
     await user.save();
     
     res.json({ message: 'Product removed from wishlist' });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Add new address (authenticated)
+router.post('/address', authenticate, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const addressData = req.body;
+    
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // If this is set as default, remove default flag from other addresses
+    if (addressData.isDefault) {
+      user.addresses.forEach(addr => {
+        addr.isDefault = false;
+      });
+    }
+    
+    // If this is the first address, make it default
+    if (user.addresses.length === 0) {
+      addressData.isDefault = true;
+    }
+    
+    user.addresses.push(addressData);
+    user.updatedAt = Date.now();
+    await user.save();
+    
+    res.json({ 
+      message: 'Address added successfully',
+      addresses: user.addresses
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Update address (authenticated)
+router.put('/address/:addressId', authenticate, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const addressId = req.params.addressId;
+    const addressData = req.body;
+    
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    const addressIndex = user.addresses.findIndex(addr => addr._id.toString() === addressId);
+    
+    if (addressIndex === -1) {
+      return res.status(404).json({ message: 'Address not found' });
+    }
+    
+    // If this is set as default, remove default flag from other addresses
+    if (addressData.isDefault) {
+      user.addresses.forEach(addr => {
+        addr.isDefault = false;
+      });
+    }
+    
+    user.addresses[addressIndex] = {
+      ...user.addresses[addressIndex].toObject(),
+      ...addressData
+    };
+    
+    user.updatedAt = Date.now();
+    await user.save();
+    
+    res.json({ 
+      message: 'Address updated successfully',
+      addresses: user.addresses
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Delete address (authenticated)
+router.delete('/address/:addressId', authenticate, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const addressId = req.params.addressId;
+    
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    const deletedAddress = user.addresses.find(addr => addr._id.toString() === addressId);
+    
+    if (!deletedAddress) {
+      return res.status(404).json({ message: 'Address not found' });
+    }
+    
+    // Remove the address
+    user.addresses = user.addresses.filter(addr => addr._id.toString() !== addressId);
+    
+    // If we deleted a default address and have other addresses, set the first one as default
+    if (deletedAddress.isDefault && user.addresses.length > 0) {
+      user.addresses[0].isDefault = true;
+    }
+    
+    user.updatedAt = Date.now();
+    await user.save();
+    
+    res.json({ 
+      message: 'Address deleted successfully',
+      addresses: user.addresses
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

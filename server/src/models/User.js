@@ -33,6 +33,41 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  birthDate: {
+    type: Date
+  },
+  avatar: {
+    type: String
+  },
+  newsletter: {
+    type: Boolean,
+    default: false
+  },
+  preferences: {
+    notifications: {
+      email: {
+        type: Boolean,
+        default: true
+      },
+      sms: {
+        type: Boolean,
+        default: false
+      },
+      promotions: {
+        type: Boolean,
+        default: true
+      },
+      orderUpdates: {
+        type: Boolean,
+        default: true
+      }
+    },
+    theme: {
+      type: String,
+      enum: ['light', 'dark', 'system'],
+      default: 'system'
+    }
+  },
   addresses: [{
     street: String,
     city: String,

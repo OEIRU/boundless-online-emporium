@@ -1,6 +1,27 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
+
+interface UserPreferences {
+  notifications: {
+    email: boolean;
+    sms: boolean;
+    promotions: boolean;
+    orderUpdates: boolean;
+  };
+  theme: 'light' | 'dark' | 'system';
+}
+
+interface Address {
+  _id?: string;
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+  isDefault: boolean;
+}
 
 interface User {
   id: string;
@@ -8,6 +29,12 @@ interface User {
   firstName: string;
   lastName: string;
   role: 'customer' | 'admin';
+  phoneNumber?: string;
+  birthDate?: string;
+  avatar?: string;
+  newsletter?: boolean;
+  preferences?: UserPreferences;
+  addresses?: Address[];
 }
 
 interface AuthContextType {
@@ -18,6 +45,11 @@ interface AuthContextType {
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
   updateProfile: (userData: Partial<User>) => Promise<void>;
+  updatePreferences: (preferences: UserPreferences) => Promise<void>;
+  updateAvatar: (avatarUrl: string) => Promise<void>;
+  addAddress: (address: Omit<Address, '_id'>) => Promise<void>;
+  updateAddress: (addressId: string, address: Partial<Address>) => Promise<void>;
+  deleteAddress: (addressId: string) => Promise<void>;
   refreshToken: () => Promise<void>;
 }
 
@@ -212,6 +244,249 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const updatePreferences = async (preferences: UserPreferences) => {
+    try {
+      setIsLoading(true);
+      
+      const token = localStorage.getItem('authToken');
+      
+      if (!token || !user) {
+        throw new Error('Вы не авторизованы');
+      }
+      
+      const response = await fetch('/api/users/preferences', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ preferences }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Ошибка при обновлении настроек');
+      }
+
+      // Update local storage with new user data
+      const updatedUser = { ...user, ...data };
+      localStorage.setItem('userData', JSON.stringify(updatedUser));
+      
+      setUser(updatedUser);
+      toast({
+        title: "Настройки обновлены",
+        description: "Ваши настройки были успешно обновлены",
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Произошла ошибка при обновлении настроек';
+      toast({
+        variant: "destructive",
+        title: "Ошибка обновления",
+        description: message,
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateAvatar = async (avatarUrl: string) => {
+    try {
+      setIsLoading(true);
+      
+      const token = localStorage.getItem('authToken');
+      
+      if (!token || !user) {
+        throw new Error('Вы не авторизованы');
+      }
+      
+      const response = await fetch('/api/users/avatar', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ avatar: avatarUrl }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Ошибка при обновлении аватара');
+      }
+
+      // Update local storage with new user data
+      const updatedUser = { ...user, ...data };
+      localStorage.setItem('userData', JSON.stringify(updatedUser));
+      
+      setUser(updatedUser);
+      toast({
+        title: "Аватар обновлен",
+        description: "Ваш аватар был успешно обновлен",
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Произошла ошибка при обновлении аватара';
+      toast({
+        variant: "destructive",
+        title: "Ошибка обновления",
+        description: message,
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const addAddress = async (address: Omit<Address, '_id'>) => {
+    try {
+      setIsLoading(true);
+      
+      const token = localStorage.getItem('authToken');
+      
+      if (!token || !user) {
+        throw new Error('Вы не авторизованы');
+      }
+      
+      const response = await fetch('/api/users/address', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(address),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Ошибка при добавлении адреса');
+      }
+
+      // Update local storage with new user data
+      const updatedUser = { 
+        ...user, 
+        addresses: data.addresses 
+      };
+      localStorage.setItem('userData', JSON.stringify(updatedUser));
+      
+      setUser(updatedUser);
+      toast({
+        title: "Адрес добавлен",
+        description: "Ваш адрес был успешно добавлен",
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Произошла ошибка при добавлении адреса';
+      toast({
+        variant: "destructive",
+        title: "Ошибка добавления",
+        description: message,
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateAddress = async (addressId: string, address: Partial<Address>) => {
+    try {
+      setIsLoading(true);
+      
+      const token = localStorage.getItem('authToken');
+      
+      if (!token || !user) {
+        throw new Error('Вы не авторизованы');
+      }
+      
+      const response = await fetch(`/api/users/address/${addressId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(address),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Ошибка при обновлении адреса');
+      }
+
+      // Update local storage with new user data
+      const updatedUser = { 
+        ...user, 
+        addresses: data.addresses 
+      };
+      localStorage.setItem('userData', JSON.stringify(updatedUser));
+      
+      setUser(updatedUser);
+      toast({
+        title: "Адрес обновлен",
+        description: "Ваш адрес был успешно обновлен",
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Произошла ошибка при обновлении адреса';
+      toast({
+        variant: "destructive",
+        title: "Ошибка обновления",
+        description: message,
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const deleteAddress = async (addressId: string) => {
+    try {
+      setIsLoading(true);
+      
+      const token = localStorage.getItem('authToken');
+      
+      if (!token || !user) {
+        throw new Error('Вы не авторизованы');
+      }
+      
+      const response = await fetch(`/api/users/address/${addressId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Ошибка при удалении адреса');
+      }
+
+      // Update local storage with new user data
+      const updatedUser = { 
+        ...user, 
+        addresses: data.addresses 
+      };
+      localStorage.setItem('userData', JSON.stringify(updatedUser));
+      
+      setUser(updatedUser);
+      toast({
+        title: "Адрес удален",
+        description: "Ваш адрес был успешно удален",
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Произошла ошибка при удалении адреса';
+      toast({
+        variant: "destructive",
+        title: "Ошибка удаления",
+        description: message,
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const refreshToken = async () => {
     try {
       const token = localStorage.getItem('authToken');
@@ -254,6 +529,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         register, 
         logout, 
         updateProfile,
+        updatePreferences,
+        updateAvatar,
+        addAddress,
+        updateAddress,
+        deleteAddress,
         refreshToken
       }}
     >
