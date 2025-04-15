@@ -1,6 +1,6 @@
 
 import { errorService } from './ErrorService';
-import { CacheService } from './CacheService';
+import { cacheService } from './CacheService';
 
 // Определение типа данных для товара
 export interface ProductSearchResult {
@@ -16,12 +16,11 @@ export interface ProductSearchResult {
 }
 
 class SearchService {
-  private cacheService: CacheService;
   private cachedSearchResults: Map<string, {timestamp: number, results: ProductSearchResult[]}> = new Map();
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 минут в миллисекундах
 
   constructor() {
-    this.cacheService = new CacheService('search', 5 * 60); // 5 минут в секундах
+    // We can safely remove the constructor since we're using the imported cacheService instance
   }
 
   /**
@@ -36,7 +35,7 @@ class SearchService {
       const cacheKey = this.generateCacheKey(query, filters);
       
       // Проверяем кэш
-      const cachedResults = this.cacheService.get<ProductSearchResult[]>(cacheKey);
+      const cachedResults = cacheService.get<ProductSearchResult[]>(cacheKey);
       if (cachedResults) {
         console.log('Returning cached search results for:', query);
         return cachedResults;
@@ -63,7 +62,7 @@ class SearchService {
       const results = await response.json();
       
       // Кэшируем результаты
-      this.cacheService.set(cacheKey, results);
+      cacheService.set(cacheKey, results);
       
       return results;
     } catch (error) {
@@ -90,7 +89,7 @@ class SearchService {
    * Очищает кэш результатов поиска
    */
   clearCache(): void {
-    this.cacheService.clear();
+    cacheService.clear();
   }
   
   /**
@@ -107,7 +106,7 @@ class SearchService {
       const cacheKey = `autocomplete_${prefix.trim().toLowerCase()}`;
       
       // Проверяем кэш
-      const cachedSuggestions = this.cacheService.get<string[]>(cacheKey);
+      const cachedSuggestions = cacheService.get<string[]>(cacheKey);
       if (cachedSuggestions) {
         return cachedSuggestions;
       }
@@ -122,7 +121,7 @@ class SearchService {
       const suggestions = await response.json();
       
       // Кэшируем результаты
-      this.cacheService.set(cacheKey, suggestions);
+      cacheService.set(cacheKey, suggestions);
       
       return suggestions;
     } catch (error) {

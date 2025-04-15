@@ -28,6 +28,7 @@ import FAQPage from "./pages/help/FAQPage";
 import HelpPage from "./pages/help/HelpPage";
 import { useEffect } from "react";
 import { logService } from "./services/LogService";
+import SearchPage from "./pages/SearchPage"; // Import the SearchPage
 
 // About pages
 import HistoryPage from "./pages/about/HistoryPage";
@@ -75,6 +76,7 @@ const App = () => {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/admin-login" element={<AdminLogin />} />
+                <Route path="/search" element={<SearchPage />} /> {/* Add SearchPage route */}
                 
                 {/* Страницы помощи */}
                 <Route path="/help" element={<HelpPage />} />

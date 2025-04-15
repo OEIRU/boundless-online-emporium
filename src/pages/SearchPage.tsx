@@ -294,10 +294,10 @@ const SearchPage = () => {
                   <ProductCard
                     key={product._id}
                     id={product._id}
-                    name={product.name}
+                    title={product.name} // Changed name to title which is what ProductCard expects
                     price={product.price}
-                    image={product.image || '/placeholder.svg'}
-                    category={product.category?.name}
+                    imageSrc={product.image || '/placeholder.svg'} // Changed image to imageSrc which is what ProductCard expects
+                    categoryName={product.category?.name} // Changed category to categoryName which is what ProductCard expects
                   />
                 ))}
               </div>

@@ -13,21 +13,30 @@ interface SearchBoxProps {
   onSearch?: (query: string) => void;
   className?: string;
   compact?: boolean;
+  value?: string; // Add value prop
 }
 
 const SearchBox = ({ 
   placeholder = 'Поиск товаров...', 
   onSearch, 
   className,
-  compact = false
+  compact = false,
+  value: initialValue = '' // Set default value
 }: SearchBoxProps) => {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(initialValue);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  
+  // Set query when initialValue changes
+  useEffect(() => {
+    if (initialValue !== query) {
+      setQuery(initialValue);
+    }
+  }, [initialValue]);
   
   // Debounced query для автозаполнения
   const debouncedQuery = useDebounce(query, 300);
@@ -123,7 +132,7 @@ const SearchBox = ({
           <Button
             type="button"
             variant="ghost"
-            size={compact ? "icon-sm" : "icon"}
+            size={compact ? "sm" : "icon"} // Change from "icon-sm" to "sm"
             onClick={clearSearch}
             className="absolute right-8 top-0 h-full"
           >
@@ -135,7 +144,7 @@ const SearchBox = ({
         <Button
           type="button"
           variant="ghost"
-          size={compact ? "icon-sm" : "icon"}
+          size={compact ? "sm" : "icon"} // Change from "icon-sm" to "sm"
           onClick={handleSearch}
           className="absolute right-0 top-0 h-full"
         >
