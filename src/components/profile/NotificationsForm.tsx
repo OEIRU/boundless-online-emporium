@@ -58,8 +58,15 @@ const NotificationsForm = () => {
       setIsSubmitting(true);
       
       const currentTheme = user?.preferences?.theme || 'system';
+      
+      // Ensure all required properties are present when calling updatePreferences
       await updatePreferences({
-        notifications: values,
+        notifications: {
+          email: values.email,
+          sms: values.sms,
+          promotions: values.promotions,
+          orderUpdates: values.orderUpdates
+        },
         theme: currentTheme
       });
     } catch (error) {

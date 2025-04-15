@@ -35,7 +35,15 @@ const AddressList = () => {
   const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
 
   const handleAddAddress = async (values: AddressFormValues) => {
-    await addAddress(values);
+    // Ensure all required properties are present
+    await addAddress({
+      street: values.street,
+      city: values.city,
+      state: values.state,
+      zipCode: values.zipCode,
+      country: values.country,
+      isDefault: values.isDefault
+    });
     setIsAddNewOpen(false);
   };
 
