@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, X, Loader2 } from 'lucide-react';
@@ -13,7 +12,7 @@ interface SearchBoxProps {
   onSearch?: (query: string) => void;
   className?: string;
   compact?: boolean;
-  value?: string; // Add value prop
+  defaultValue?: string; // Add defaultValue prop
 }
 
 const SearchBox = ({ 
@@ -21,9 +20,9 @@ const SearchBox = ({
   onSearch, 
   className,
   compact = false,
-  value: initialValue = '' // Set default value
+  defaultValue = '' // Add default value
 }: SearchBoxProps) => {
-  const [query, setQuery] = useState(initialValue);
+  const [query, setQuery] = useState(defaultValue);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,12 +30,10 @@ const SearchBox = ({
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   
-  // Set query when initialValue changes
+  // Update query when defaultValue changes
   useEffect(() => {
-    if (initialValue !== query) {
-      setQuery(initialValue);
-    }
-  }, [initialValue]);
+    setQuery(defaultValue);
+  }, [defaultValue]);
   
   // Debounced query для автозаполнения
   const debouncedQuery = useDebounce(query, 300);
