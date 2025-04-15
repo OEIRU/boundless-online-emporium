@@ -2,7 +2,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useLocation } from "react-router-dom";
 import { ReactNode, useEffect } from "react";
-import { getCsrfToken, generateCsrfToken, storeCsrfToken } from '@/utils/security';
+import { getCsrfToken, generateCsrfToken, storeCsrfToken, validateCsrfToken } from '@/utils/security';
 import { logService } from "@/services/LogService";
 
 interface RequireAuthProps {
@@ -13,9 +13,10 @@ const RequireAuth = ({ children }: RequireAuthProps) => {
   const { isAuthenticated, isLoading, refreshToken } = useAuth();
   const location = useLocation();
 
-  // Ensure CSRF token is available
+  // Ensure CSRF token is available and valid
   useEffect(() => {
-    if (!getCsrfToken()) {
+    const currentToken = getCsrfToken();
+    if (!currentToken || !validateCsrfToken(currentToken)) {
       const newToken = generateCsrfToken();
       storeCsrfToken(newToken);
       logService.debug('Generated new CSRF token');

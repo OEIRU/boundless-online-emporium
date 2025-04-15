@@ -1,10 +1,8 @@
 
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   ShoppingCart, 
-  Search, 
-  User, 
   Menu, 
   X, 
   Heart,
@@ -21,8 +19,8 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import SearchBox from "@/components/search/SearchBox";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 
@@ -30,6 +28,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout, isAuthenticated } = useAuth();
   const { cart } = useCart();
+  const navigate = useNavigate();
   const cartItemCount = cart.items.reduce((count, item) => count + item.quantity, 0);
   
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -38,6 +37,10 @@ const Navbar = () => {
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location]);
+
+  const handleSearch = (query: string) => {
+    navigate(`/search?q=${encodeURIComponent(query)}`);
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-white shadow-sm">
@@ -50,14 +53,10 @@ const Navbar = () => {
 
           {/* Search bar - hidden on mobile */}
           <div className="hidden md:flex relative flex-1 mx-10 max-w-xl">
-            <Input
-              type="text"
+            <SearchBox 
+              onSearch={handleSearch} 
               placeholder="Поиск товаров..."
-              className="w-full pr-10"
             />
-            <Button size="icon" variant="ghost" className="absolute right-0 top-0">
-              <Search className="h-4 w-4" />
-            </Button>
           </div>
 
           {/* Desktop Nav */}
@@ -65,7 +64,7 @@ const Navbar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
+                  <UserCircle className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -106,7 +105,7 @@ const Navbar = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Link to="/register" className="w-full flex items-center">
-                        <User className="h-4 w-4 mr-2" />
+                        <UserCircle className="h-4 w-4 mr-2" />
                         Регистрация
                       </Link>
                     </DropdownMenuItem>
@@ -155,14 +154,11 @@ const Navbar = () => {
         {isMenuOpen && (
           <div className="md:hidden mt-3 pb-2 animate-fade-in">
             <div className="relative mb-3">
-              <Input
-                type="text"
+              <SearchBox
+                onSearch={handleSearch}
                 placeholder="Поиск товаров..."
-                className="w-full pr-10"
+                compact={true}
               />
-              <Button size="icon" variant="ghost" className="absolute right-0 top-0">
-                <Search className="h-4 w-4" />
-              </Button>
             </div>
             <div className="flex flex-col space-y-2">
               {isAuthenticated ? (
@@ -192,7 +188,7 @@ const Navbar = () => {
                     Войти
                   </Link>
                   <Link to="/register" className="flex items-center py-2 px-3 rounded hover:bg-gray-100">
-                    <User className="h-4 w-4 mr-2" />
+                    <UserCircle className="h-4 w-4 mr-2" />
                     Регистрация
                   </Link>
                   <Link to="/admin-login" className="flex items-center py-2 px-3 rounded hover:bg-gray-100">
