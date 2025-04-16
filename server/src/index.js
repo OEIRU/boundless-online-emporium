@@ -19,6 +19,22 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'WildStore API Server',
+    version: '1.0.0',
+    endpoints: [
+      '/api/products',
+      '/api/categories',
+      '/api/users',
+      '/api/cart',
+      '/api/orders',
+      '/api/health'
+    ]
+  });
+});
+
 // Routes
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
