@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { 
   Select,
   SelectContent,
@@ -31,12 +32,18 @@ const CategoryPage = () => {
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [sortOption, setSortOption] = useState("featured");
   const [loading, setLoading] = useState(false);
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [discountFilter, setDiscountFilter] = useState(0);
   
-  // Применяем параметры из URL при загрузке
+  // Apply parameters from URL on load
   useEffect(() => {
     const minPrice = searchParams.get('min_price');
     const maxPrice = searchParams.get('max_price');
     const sort = searchParams.get('sort');
+    const sizes = searchParams.get('sizes');
+    const colors = searchParams.get('colors');
+    const minDiscount = searchParams.get('min_discount');
     
     if (minPrice && maxPrice) {
       setPriceRange([parseInt(minPrice), parseInt(maxPrice)]);
@@ -44,6 +51,18 @@ const CategoryPage = () => {
     
     if (sort) {
       setSortOption(sort);
+    }
+    
+    if (sizes) {
+      setSelectedSizes(sizes.split(','));
+    }
+    
+    if (colors) {
+      setSelectedColors(colors.split(','));
+    }
+    
+    if (minDiscount) {
+      setDiscountFilter(parseInt(minDiscount));
     }
   }, [searchParams]);
   
@@ -62,7 +81,7 @@ const CategoryPage = () => {
     updateSearchParams('sort', value);
     
     setLoading(true);
-    // Имитация загрузки данных
+    // Simulate loading data
     setTimeout(() => {
       setLoading(false);
       toast({
@@ -73,6 +92,54 @@ const CategoryPage = () => {
     }, 500);
   };
   
+  const handleSizeToggle = (size: string) => {
+    setSelectedSizes(prev => {
+      const newSizes = prev.includes(size) 
+        ? prev.filter(s => s !== size)
+        : [...prev, size];
+        
+      // Update URL params
+      if (newSizes.length > 0) {
+        updateSearchParams('sizes', newSizes.join(','));
+      } else {
+        searchParams.delete('sizes');
+        setSearchParams(searchParams);
+      }
+      
+      return newSizes;
+    });
+  };
+  
+  const handleColorToggle = (color: string) => {
+    setSelectedColors(prev => {
+      const newColors = prev.includes(color)
+        ? prev.filter(c => c !== color)
+        : [...prev, color];
+        
+      // Update URL params
+      if (newColors.length > 0) {
+        updateSearchParams('colors', newColors.join(','));
+      } else {
+        searchParams.delete('colors');
+        setSearchParams(searchParams);
+      }
+      
+      return newColors;
+    });
+  };
+  
+  const handleDiscountChange = (value: string) => {
+    const discount = parseInt(value);
+    setDiscountFilter(discount);
+    
+    if (discount > 0) {
+      updateSearchParams('min_discount', value);
+    } else {
+      searchParams.delete('min_discount');
+      setSearchParams(searchParams);
+    }
+  };
+  
   const updateSearchParams = (key: string, value: string) => {
     searchParams.set(key, value);
     setSearchParams(searchParams);
@@ -81,6 +148,9 @@ const CategoryPage = () => {
   const clearFilters = () => {
     setPriceRange([0, 500]);
     setSortOption("featured");
+    setSelectedSizes([]);
+    setSelectedColors([]);
+    setDiscountFilter(0);
     setSearchParams(new URLSearchParams());
     
     toast({
@@ -90,7 +160,7 @@ const CategoryPage = () => {
     });
   };
   
-  // Отображение категорий на русском языке
+  // Display categories in Russian
   const getCategoryName = (categorySlug: string | undefined): string => {
     if (!categorySlug) return 'Товары';
     
@@ -150,7 +220,7 @@ const CategoryPage = () => {
               </Button>
             </div>
             
-            <Accordion type="multiple" defaultValue={["price", "brand", "size"]}>
+            <Accordion type="multiple" defaultValue={["price", "brand", "size", "color", "discount"]}>
               <AccordionItem value="price" className="border-b">
                 <AccordionTrigger className="py-3">Диапазон цен</AccordionTrigger>
                 <AccordionContent>
@@ -197,8 +267,9 @@ const CategoryPage = () => {
                     {["XS", "S", "M", "L", "XL", "XXL"].map((size) => (
                       <Button 
                         key={size} 
-                        variant="outline" 
+                        variant={selectedSizes.includes(size) ? "default" : "outline"}
                         className="h-9"
+                        onClick={() => handleSizeToggle(size)}
                       >
                         {size}
                       </Button>
@@ -221,12 +292,15 @@ const CategoryPage = () => {
                     ].map((color) => (
                       <div
                         key={color.name}
-                        className="w-8 h-8 rounded-full cursor-pointer"
+                        className={`w-8 h-8 rounded-full cursor-pointer flex items-center justify-center ${
+                          selectedColors.includes(color.name) ? 'ring-2 ring-store-purple ring-offset-2' : ''
+                        }`}
                         style={{ 
                           backgroundColor: color.color,
                           border: color.border ? "1px solid #e2e8f0" : "none"
                         }}
                         title={color.name}
+                        onClick={() => handleColorToggle(color.name)}
                       />
                     ))}
                   </div>
@@ -236,14 +310,26 @@ const CategoryPage = () => {
               <AccordionItem value="discount" className="border-b">
                 <AccordionTrigger className="py-3">Скидка</AccordionTrigger>
                 <AccordionContent>
-                  <div className="space-y-2">
-                    {["10% или больше", "20% или больше", "30% или больше", "40% или больше", "50% или больше"].map((discount) => (
-                      <div key={discount} className="flex items-center space-x-2">
-                        <Checkbox id={`discount-${discount}`} />
-                        <Label htmlFor={`discount-${discount}`} className="text-sm cursor-pointer">{discount}</Label>
+                  <RadioGroup 
+                    value={discountFilter.toString()} 
+                    onValueChange={handleDiscountChange}
+                  >
+                    {[
+                      { label: "Все товары", value: "0" },
+                      { label: "10% или больше", value: "10" },
+                      { label: "20% или больше", value: "20" },
+                      { label: "30% или больше", value: "30" },
+                      { label: "40% или больше", value: "40" },
+                      { label: "50% или больше", value: "50" }
+                    ].map((option) => (
+                      <div key={option.value} className="flex items-center space-x-2 py-1">
+                        <RadioGroupItem value={option.value} id={`discount-${option.value}`} />
+                        <Label htmlFor={`discount-${option.value}`} className="text-sm cursor-pointer">
+                          {option.label}
+                        </Label>
                       </div>
                     ))}
-                  </div>
+                  </RadioGroup>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -270,29 +356,25 @@ const CategoryPage = () => {
                 <SelectContent>
                   <SelectItem value="featured">Популярности</SelectItem>
                   <SelectItem value="newest">Новизне</SelectItem>
-                  <SelectItem value="price-asc">Цена: по возрастанию</SelectItem>
-                  <SelectItem value="price-desc">Цена: по убыванию</SelectItem>
+                  <SelectItem value="price_asc">Цена: по возрастанию</SelectItem>
+                  <SelectItem value="price_desc">Цена: по убыванию</SelectItem>
                   <SelectItem value="rating">Рейтингу</SelectItem>
+                  <SelectItem value="discount">Скидке</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           
           {/* Products */}
-          {loading ? (
-            <div className="flex justify-center py-20">
-              <div className="animate-pulse text-center">
-                <p className="text-gray-500">Загрузка товаров...</p>
-              </div>
-            </div>
-          ) : (
-            <ProductGrid 
-              title="" 
-              categoryFilter={capitalizedCategory} 
-              sortOption={sortOption}
-              priceRange={priceRange}
-            />
-          )}
+          <ProductGrid 
+            title="" 
+            categoryFilter={capitalizedCategory} 
+            sortOption={sortOption}
+            priceRange={priceRange}
+            sizeFilters={selectedSizes}
+            colorFilters={selectedColors}
+            discountFilter={discountFilter}
+          />
         </div>
       </div>
     </PageLayout>

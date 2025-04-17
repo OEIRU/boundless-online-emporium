@@ -1,7 +1,8 @@
-
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import ProductCard, { ProductProps } from '@/components/products/ProductCard';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { searchService } from '@/services/SearchService';
+import { useToast } from '@/components/ui/use-toast';
 
 // Sample products data with more examples for each category
 const productsData: ProductProps[] = [
@@ -284,6 +285,9 @@ interface ProductGridProps {
   categoryFilter?: string;
   sortOption?: string;
   priceRange?: number[];
+  sizeFilters?: string[];
+  colorFilters?: string[];
+  discountFilter?: number;
 }
 
 const ProductGrid = ({ 
@@ -291,28 +295,102 @@ const ProductGrid = ({
   products = productsData,
   categoryFilter,
   sortOption = "featured",
-  priceRange = [0, 1000]
+  priceRange = [0, 1000],
+  sizeFilters = [],
+  colorFilters = [],
+  discountFilter = 0
 }: ProductGridProps) => {
   const isMobile = useIsMobile();
   const [visibleProducts, setVisibleProducts] = useState(8);
+  const [loading, setLoading] = useState(false);
+  const [apiProducts, setApiProducts] = useState<ProductProps[]>([]);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const { toast } = useToast();
   
-  // Apply filters and sorting
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        
+        const params: Record<string, string> = {};
+        
+        if (categoryFilter) {
+          params.category = categoryFilter;
+        }
+        
+        if (sortOption) {
+          params.sort = sortOption;
+        }
+        
+        if (priceRange && priceRange.length === 2) {
+          params.min_price = priceRange[0].toString();
+          params.max_price = priceRange[1].toString();
+        }
+        
+        if (sizeFilters && sizeFilters.length > 0) {
+          params.sizes = sizeFilters.join(',');
+        }
+        
+        if (colorFilters && colorFilters.length > 0) {
+          params.colors = colorFilters.join(',');
+        }
+        
+        if (discountFilter && discountFilter > 0) {
+          params.min_discount = discountFilter.toString();
+        }
+        
+        const queryString = new URLSearchParams(params).toString();
+        
+        const response = await fetch(`/api/products?${queryString}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        
+        const data = await response.json();
+        
+        setApiProducts(data.products.map((product: any) => ({
+          id: product._id,
+          title: product.title,
+          price: product.price,
+          originalPrice: product.originalPrice,
+          image: product.images?.[0] || '',
+          category: product.category?.name
+        })));
+        
+        setTotalProducts(data.pagination.total);
+        
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        toast({
+          title: "Не удалось загрузить товары",
+          description: "Используем демо-данные для отображения",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts().catch(console.error);
+  }, [categoryFilter, sortOption, priceRange, sizeFilters, colorFilters, discountFilter, toast]);
+  
   const filteredProducts = useMemo(() => {
-    // Filter by category if categoryFilter is provided
+    if (apiProducts.length > 0) {
+      return apiProducts;
+    }
+    
     let result = categoryFilter 
       ? products.filter(product => product.category === categoryFilter)
       : products;
     
-    // Filter by price range
     result = result.filter(product => 
       product.price >= priceRange[0] && product.price <= priceRange[1]
     );
     
-    // Apply sorting
     if (sortOption) {
       switch (sortOption) {
         case "newest":
-          // For demo, just using current order which is already sorted by "newness"
           break;
         case "price-asc":
           result = [...result].sort((a, b) => a.price - b.price);
@@ -321,17 +399,15 @@ const ProductGrid = ({
           result = [...result].sort((a, b) => b.price - a.price);
           break;
         case "rating":
-          // For demo, since we don't have ratings, just use a random sort
           result = [...result].sort(() => Math.random() - 0.5);
           break;
         default:
-          // featured - no sorting required
           break;
       }
     }
     
     return result;
-  }, [products, categoryFilter, sortOption, priceRange]);
+  }, [products, categoryFilter, sortOption, priceRange, apiProducts]);
 
   const loadMore = () => {
     setVisibleProducts(prev => prev + 8);
@@ -341,7 +417,22 @@ const ProductGrid = ({
     <div className="my-8">
       {title && <h2 className="text-2xl font-bold text-gray-900 mb-6">{title}</h2>}
       
-      {filteredProducts.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-10">
+          <div className="animate-pulse flex flex-col items-center">
+            <div className="h-5 w-48 bg-gray-200 mb-4 rounded"></div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="flex flex-col space-y-3">
+                  <div className="h-48 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : filteredProducts.length === 0 ? (
         <div className="text-center py-10">
           <p className="text-gray-500">Товары не найдены.</p>
           <p className="text-gray-500 mt-2">Попробуйте изменить параметры фильтра.</p>

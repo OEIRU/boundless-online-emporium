@@ -46,6 +46,12 @@ const productSchema = new mongoose.Schema({
     required: true,
     default: 0
   },
+  discount: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 100
+  },
   isActive: {
     type: Boolean,
     default: true
@@ -58,6 +64,24 @@ const productSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
+});
+
+// Create indexes for improved search and filtering performance
+productSchema.index({ title: 'text', description: 'text' });
+productSchema.index({ category: 1 });
+productSchema.index({ price: 1 });
+productSchema.index({ discount: 1 });
+productSchema.index({ "colors.name": 1 });
+productSchema.index({ sizes: 1 });
+productSchema.index({ isActive: 1 });
+
+// Calculate discount before saving if originalPrice is set
+productSchema.pre('save', function(next) {
+  if (this.originalPrice && this.price) {
+    const discountPercentage = ((this.originalPrice - this.price) / this.originalPrice) * 100;
+    this.discount = Math.round(discountPercentage);
+  }
+  next();
 });
 
 module.exports = mongoose.model('Product', productSchema);
