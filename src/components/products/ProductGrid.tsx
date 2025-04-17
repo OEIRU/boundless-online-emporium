@@ -338,7 +338,7 @@ const ProductGrid = ({
           />
           
           {visibleProducts < filteredProducts.length && (
-            <LoadMoreButton onClick={loadMore} />
+            <LoadMoreButton onClick={loadMore} isLoading={loading} />
           )}
         </>
       )}

@@ -78,7 +78,22 @@ export const useProductData = ({
           throw new Error(`Failed to fetch products: ${response.status} ${response.statusText}`);
         }
         
-        const data = await response.json();
+        const text = await response.text();
+        let data;
+        
+        try {
+          // Проверяем, если текст пустой
+          if (!text.trim()) {
+            throw new Error('Получен пустой ответ от сервера');
+          }
+          
+          // Пытаемся распарсить текст как JSON
+          data = JSON.parse(text);
+        } catch (parseError) {
+          console.error('Failed to parse JSON response:', parseError, 'Response text:', text);
+          throw new Error(`Ошибка при обработке ответа сервера: ${parseError.message}`);
+        }
+        
         console.log('Products fetched successfully:', data);
         
         if (data.products && Array.isArray(data.products)) {
@@ -93,10 +108,10 @@ export const useProductData = ({
           
           setTotalProducts(data.pagination.total);
         } else {
-          throw new Error('Invalid response format');
+          throw new Error('Неверный формат ответа от сервера');
         }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
         console.error('Error fetching products:', error);
         setFetchError(errorMessage);
         
@@ -110,11 +125,14 @@ export const useProductData = ({
           discountFilter
         });
         
-        toast({
-          title: "Не удалось загрузить товары",
-          description: "Используем демо-данные для отображения. Повторите попытку позже.",
-          variant: "destructive"
-        });
+        // Отображаем уведомление только для непустых ответов с ошибкой парсинга
+        if (!errorMessage.includes('пустой ответ') && !errorMessage.includes('Нет товаров')) {
+          toast({
+            title: "Не удалось загрузить товары",
+            description: "Используем демо-данные для отображения. Повторите попытку позже.",
+            variant: "destructive"
+          });
+        }
       } finally {
         setLoading(false);
       }
