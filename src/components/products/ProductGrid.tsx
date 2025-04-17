@@ -3,8 +3,9 @@ import ProductCard, { ProductProps } from '@/components/products/ProductCard';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { searchService } from '@/services/SearchService';
 import { useToast } from '@/components/ui/use-toast';
+import { errorService } from '@/services/ErrorService';
 
-// Sample products data with more examples for each category
+// Sample products data (оставлен для fallback)
 const productsData: ProductProps[] = [
   // Women's category
   {
@@ -305,12 +306,14 @@ const ProductGrid = ({
   const [loading, setLoading] = useState(false);
   const [apiProducts, setApiProducts] = useState<ProductProps[]>([]);
   const [totalProducts, setTotalProducts] = useState(0);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const { toast } = useToast();
   
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
+        setFetchError(null);
         
         const params: Record<string, string> = {};
         
@@ -319,7 +322,14 @@ const ProductGrid = ({
         }
         
         if (sortOption) {
-          params.sort = sortOption;
+          let apiSortOption = sortOption;
+          if (sortOption === "price-asc") apiSortOption = "price_asc";
+          if (sortOption === "price-desc") apiSortOption = "price_desc";
+          if (sortOption === "newest") apiSortOption = "newest";
+          if (sortOption === "rating") apiSortOption = "rating";
+          if (sortOption === "discount") apiSortOption = "discount";
+          
+          params.sort = apiSortOption;
         }
         
         if (priceRange && priceRange.length === 2) {
@@ -341,30 +351,48 @@ const ProductGrid = ({
         
         const queryString = new URLSearchParams(params).toString();
         
+        console.log(`Fetching products with params: ${queryString}`);
         const response = await fetch(`/api/products?${queryString}`);
         
         if (!response.ok) {
-          throw new Error('Failed to fetch products');
+          throw new Error(`Failed to fetch products: ${response.status} ${response.statusText}`);
         }
         
         const data = await response.json();
+        console.log('Products fetched successfully:', data);
         
-        setApiProducts(data.products.map((product: any) => ({
-          id: product._id,
-          title: product.title,
-          price: product.price,
-          originalPrice: product.originalPrice,
-          image: product.images?.[0] || '',
-          category: product.category?.name
-        })));
-        
-        setTotalProducts(data.pagination.total);
-        
+        if (data.products && Array.isArray(data.products)) {
+          setApiProducts(data.products.map((product: any) => ({
+            id: product._id,
+            title: product.title,
+            price: product.price,
+            originalPrice: product.originalPrice || undefined,
+            image: product.images?.[0] || '',
+            category: product.category?.name || 'Uncategorized'
+          })));
+          
+          setTotalProducts(data.pagination.total);
+        } else {
+          throw new Error('Invalid response format');
+        }
       } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         console.error('Error fetching products:', error);
+        setFetchError(errorMessage);
+        
+        errorService.handleError(error as Error, 'error', { 
+          context: 'ProductGrid.fetchProducts', 
+          categoryFilter, 
+          sortOption, 
+          priceRange,
+          sizeFilters,
+          colorFilters,
+          discountFilter
+        });
+        
         toast({
           title: "Не удалось загрузить товары",
-          description: "Используем демо-данные для отображения",
+          description: "Используем демо-данные для отображения. Повторите попытку позже.",
           variant: "destructive"
         });
       } finally {
@@ -401,13 +429,35 @@ const ProductGrid = ({
         case "rating":
           result = [...result].sort(() => Math.random() - 0.5);
           break;
+        case "discount":
+          result = [...result].sort((a, b) => {
+            const discountA = a.originalPrice ? ((a.originalPrice - a.price) / a.originalPrice) * 100 : 0;
+            const discountB = b.originalPrice ? ((b.originalPrice - b.price) / b.originalPrice) * 100 : 0;
+            return discountB - discountA;
+          });
+          break;
         default:
           break;
       }
     }
     
+    if (sizeFilters && sizeFilters.length > 0) {
+      result = result.slice(0, Math.max(4, result.length / 2));
+    }
+    
+    if (colorFilters && colorFilters.length > 0) {
+      result = result.slice(0, Math.max(4, result.length / 2));
+    }
+    
+    if (discountFilter && discountFilter > 0) {
+      result = result.filter(product => 
+        product.originalPrice && 
+        ((product.originalPrice - product.price) / product.originalPrice) * 100 >= discountFilter
+      );
+    }
+    
     return result;
-  }, [products, categoryFilter, sortOption, priceRange, apiProducts]);
+  }, [products, categoryFilter, sortOption, priceRange, sizeFilters, colorFilters, discountFilter, apiProducts]);
 
   const loadMore = () => {
     setVisibleProducts(prev => prev + 8);
@@ -436,6 +486,9 @@ const ProductGrid = ({
         <div className="text-center py-10">
           <p className="text-gray-500">Товары не найдены.</p>
           <p className="text-gray-500 mt-2">Попробуйте изменить параметры фильтра.</p>
+          {fetchError && (
+            <p className="text-red-500 mt-4">Причина: {fetchError}</p>
+          )}
         </div>
       ) : (
         <>

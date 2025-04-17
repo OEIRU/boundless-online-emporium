@@ -8,6 +8,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const userRoutes = require('./routes/userRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const { errorHandler, notFound } = require('./middleware/errorMiddleware');
 
 // Load environment variables
 dotenv.config();
@@ -35,7 +36,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// Routes
+// API routes
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/users', userRoutes);
@@ -46,6 +47,12 @@ app.use('/api/orders', orderRoutes);
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
+
+// Обработка 404 для несуществующих API маршрутов
+app.use(notFound);
+
+// Централизованная обработка ошибок
+app.use(errorHandler);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
@@ -62,4 +69,17 @@ mongoose.connect(process.env.MONGODB_URI, {
 })
 .catch((err) => {
   console.error('MongoDB connection error:', err);
+  process.exit(1);
+});
+
+// Обработка необработанных исключений
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
+});
+
+// Обработка необработанных отклонений промисов
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
 });
