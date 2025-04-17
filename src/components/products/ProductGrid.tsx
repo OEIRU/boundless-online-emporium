@@ -1,9 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
-import ProductCard, { ProductProps } from '@/components/products/ProductCard';
+import { useState } from 'react';
+import { ProductProps } from '@/components/products/ProductCard';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { searchService } from '@/services/SearchService';
-import { useToast } from '@/components/ui/use-toast';
-import { errorService } from '@/services/ErrorService';
+import { useProductData } from '@/hooks/use-product-data';
+import ProductGridLayout from '@/components/products/ProductGridLayout';
+import ProductGridSkeleton from '@/components/products/ProductGridSkeleton';
+import NoProductsFound from '@/components/products/NoProductsFound';
+import LoadMoreButton from '@/components/products/LoadMoreButton';
 
 // Sample products data (оставлен для fallback)
 const productsData: ProductProps[] = [
@@ -303,161 +305,16 @@ const ProductGrid = ({
 }: ProductGridProps) => {
   const isMobile = useIsMobile();
   const [visibleProducts, setVisibleProducts] = useState(8);
-  const [loading, setLoading] = useState(false);
-  const [apiProducts, setApiProducts] = useState<ProductProps[]>([]);
-  const [totalProducts, setTotalProducts] = useState(0);
-  const [fetchError, setFetchError] = useState<string | null>(null);
-  const { toast } = useToast();
-  
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        setFetchError(null);
-        
-        const params: Record<string, string> = {};
-        
-        if (categoryFilter) {
-          params.category = categoryFilter;
-        }
-        
-        if (sortOption) {
-          let apiSortOption = sortOption;
-          if (sortOption === "price-asc") apiSortOption = "price_asc";
-          if (sortOption === "price-desc") apiSortOption = "price_desc";
-          if (sortOption === "newest") apiSortOption = "newest";
-          if (sortOption === "rating") apiSortOption = "rating";
-          if (sortOption === "discount") apiSortOption = "discount";
-          
-          params.sort = apiSortOption;
-        }
-        
-        if (priceRange && priceRange.length === 2) {
-          params.min_price = priceRange[0].toString();
-          params.max_price = priceRange[1].toString();
-        }
-        
-        if (sizeFilters && sizeFilters.length > 0) {
-          params.sizes = sizeFilters.join(',');
-        }
-        
-        if (colorFilters && colorFilters.length > 0) {
-          params.colors = colorFilters.join(',');
-        }
-        
-        if (discountFilter && discountFilter > 0) {
-          params.min_discount = discountFilter.toString();
-        }
-        
-        const queryString = new URLSearchParams(params).toString();
-        
-        console.log(`Fetching products with params: ${queryString}`);
-        const response = await fetch(`/api/products?${queryString}`);
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch products: ${response.status} ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        console.log('Products fetched successfully:', data);
-        
-        if (data.products && Array.isArray(data.products)) {
-          setApiProducts(data.products.map((product: any) => ({
-            id: product._id,
-            title: product.title,
-            price: product.price,
-            originalPrice: product.originalPrice || undefined,
-            image: product.images?.[0] || '',
-            category: product.category?.name || 'Uncategorized'
-          })));
-          
-          setTotalProducts(data.pagination.total);
-        } else {
-          throw new Error('Invalid response format');
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error('Error fetching products:', error);
-        setFetchError(errorMessage);
-        
-        errorService.handleError(error as Error, 'error', { 
-          context: 'ProductGrid.fetchProducts', 
-          categoryFilter, 
-          sortOption, 
-          priceRange,
-          sizeFilters,
-          colorFilters,
-          discountFilter
-        });
-        
-        toast({
-          title: "Не удалось загрузить товары",
-          description: "Используем демо-данные для отображения. Повторите попытку позже.",
-          variant: "destructive"
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchProducts().catch(console.error);
-  }, [categoryFilter, sortOption, priceRange, sizeFilters, colorFilters, discountFilter, toast]);
-  
-  const filteredProducts = useMemo(() => {
-    if (apiProducts.length > 0) {
-      return apiProducts;
-    }
-    
-    let result = categoryFilter 
-      ? products.filter(product => product.category === categoryFilter)
-      : products;
-    
-    result = result.filter(product => 
-      product.price >= priceRange[0] && product.price <= priceRange[1]
-    );
-    
-    if (sortOption) {
-      switch (sortOption) {
-        case "newest":
-          break;
-        case "price-asc":
-          result = [...result].sort((a, b) => a.price - b.price);
-          break;
-        case "price-desc":
-          result = [...result].sort((a, b) => b.price - a.price);
-          break;
-        case "rating":
-          result = [...result].sort(() => Math.random() - 0.5);
-          break;
-        case "discount":
-          result = [...result].sort((a, b) => {
-            const discountA = a.originalPrice ? ((a.originalPrice - a.price) / a.originalPrice) * 100 : 0;
-            const discountB = b.originalPrice ? ((b.originalPrice - b.price) / b.originalPrice) * 100 : 0;
-            return discountB - discountA;
-          });
-          break;
-        default:
-          break;
-      }
-    }
-    
-    if (sizeFilters && sizeFilters.length > 0) {
-      result = result.slice(0, Math.max(4, result.length / 2));
-    }
-    
-    if (colorFilters && colorFilters.length > 0) {
-      result = result.slice(0, Math.max(4, result.length / 2));
-    }
-    
-    if (discountFilter && discountFilter > 0) {
-      result = result.filter(product => 
-        product.originalPrice && 
-        ((product.originalPrice - product.price) / product.originalPrice) * 100 >= discountFilter
-      );
-    }
-    
-    return result;
-  }, [products, categoryFilter, sortOption, priceRange, sizeFilters, colorFilters, discountFilter, apiProducts]);
+  const { loading, filteredProducts, fetchError } = useProductData({
+    categoryFilter,
+    sortOption,
+    priceRange,
+    sizeFilters,
+    colorFilters,
+    discountFilter,
+    fallbackProducts: products
+  });
 
   const loadMore = () => {
     setVisibleProducts(prev => prev + 8);
@@ -469,46 +326,19 @@ const ProductGrid = ({
       
       {loading ? (
         <div className="text-center py-10">
-          <div className="animate-pulse flex flex-col items-center">
-            <div className="h-5 w-48 bg-gray-200 mb-4 rounded"></div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="flex flex-col space-y-3">
-                  <div className="h-48 bg-gray-200 rounded"></div>
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <ProductGridSkeleton />
         </div>
       ) : filteredProducts.length === 0 ? (
-        <div className="text-center py-10">
-          <p className="text-gray-500">Товары не найдены.</p>
-          <p className="text-gray-500 mt-2">Попробуйте изменить параметры фильтра.</p>
-          {fetchError && (
-            <p className="text-red-500 mt-4">Причина: {fetchError}</p>
-          )}
-        </div>
+        <NoProductsFound fetchError={fetchError} />
       ) : (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {filteredProducts.slice(0, visibleProducts).map((product) => (
-              <div key={product.id}>
-                <ProductCard {...product} />
-              </div>
-            ))}
-          </div>
+          <ProductGridLayout 
+            products={filteredProducts} 
+            visibleCount={visibleProducts} 
+          />
           
           {visibleProducts < filteredProducts.length && (
-            <div className="mt-8 text-center">
-              <button
-                onClick={loadMore}
-                className="bg-store-purple hover:bg-store-purple-dark text-white font-medium py-2 px-6 rounded-md transition-colors"
-              >
-                Загрузить еще
-              </button>
-            </div>
+            <LoadMoreButton onClick={loadMore} />
           )}
         </>
       )}
