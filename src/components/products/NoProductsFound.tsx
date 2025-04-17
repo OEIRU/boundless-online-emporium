@@ -1,16 +1,24 @@
 
 import React from 'react';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface NoProductsFoundProps {
   fetchError: string | null;
+  onRetry?: () => void;
 }
 
-const NoProductsFound = ({ fetchError }: NoProductsFoundProps) => {
-  // Обработка сообщения об ошибке для более дружественного отображения
+const NoProductsFound = ({ fetchError, onRetry }: NoProductsFoundProps) => {
+  // Process error message for more user-friendly display
   const getErrorMessage = (error: string): string => {
     if (error.includes('JSON.parse') || error.includes('unexpected character')) {
       return 'Ошибка при загрузке данных с сервера. Возможно, сервер временно недоступен.';
+    }
+    if (error.includes('Failed to fetch') || error.includes('NetworkError')) {
+      return 'Не удалось подключиться к серверу. Проверьте ваше интернет-соединение.';
+    }
+    if (error.includes('пустой ответ')) {
+      return 'Сервер вернул пустой ответ. Попробуйте обновить страницу.';
     }
     return error;
   };
@@ -25,6 +33,17 @@ const NoProductsFound = ({ fetchError }: NoProductsFoundProps) => {
           <p className="text-red-600 text-sm">
             {getErrorMessage(fetchError)}
           </p>
+          {onRetry && (
+            <Button 
+              onClick={onRetry} 
+              variant="outline" 
+              className="mt-3 text-sm"
+              size="sm"
+            >
+              <RefreshCw className="mr-2 h-3 w-3" />
+              Попробовать снова
+            </Button>
+          )}
         </div>
       )}
     </div>

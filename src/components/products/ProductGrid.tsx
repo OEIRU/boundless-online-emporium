@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useCallback } from 'react';
 import { ProductProps } from '@/components/products/ProductCard';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useProductData } from '@/hooks/use-product-data';
@@ -305,6 +306,7 @@ const ProductGrid = ({
 }: ProductGridProps) => {
   const isMobile = useIsMobile();
   const [visibleProducts, setVisibleProducts] = useState(8);
+  const [requestKey, setRequestKey] = useState(0); // Add a key to force re-fetch
 
   const { loading, filteredProducts, fetchError } = useProductData({
     categoryFilter,
@@ -316,9 +318,14 @@ const ProductGrid = ({
     fallbackProducts: products
   });
 
-  const loadMore = () => {
+  const loadMore = useCallback(() => {
     setVisibleProducts(prev => prev + 8);
-  };
+  }, []);
+
+  const handleRetry = useCallback(() => {
+    // Force a re-fetch by updating the request key
+    setRequestKey(prev => prev + 1);
+  }, []);
 
   return (
     <div className="my-8">
@@ -329,7 +336,7 @@ const ProductGrid = ({
           <ProductGridSkeleton />
         </div>
       ) : filteredProducts.length === 0 ? (
-        <NoProductsFound fetchError={fetchError} />
+        <NoProductsFound fetchError={fetchError} onRetry={handleRetry} />
       ) : (
         <>
           <ProductGridLayout 
