@@ -1,7 +1,7 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
+import { cookieService } from '@/services/CookieService';
 
 interface UserPreferences {
   notifications: {
@@ -81,7 +81,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check if user is logged in on initial load
   useEffect(() => {
     const checkAuthStatus = () => {
       const token = localStorage.getItem('authToken');
@@ -125,6 +124,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       localStorage.setItem('userData', JSON.stringify(data.user));
       
       setUser(data.user);
+
+      // Load user preferences from server
+      await cookieService.loadUserPreferences(data.user.id);
+      
       toast({
         title: "Успешный вход",
         description: "Вы успешно вошли в систему",
@@ -187,6 +190,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const logout = () => {
+    if (user) {
+      // Sync preferences before logout
+      cookieService.syncUserPreferences(user.id);
+    }
+    
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
     setUser(null);

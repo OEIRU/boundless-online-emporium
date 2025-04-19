@@ -1,4 +1,3 @@
-
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
@@ -66,6 +65,11 @@ const userSchema = new mongoose.Schema({
       type: String,
       enum: ['light', 'dark', 'system'],
       default: 'system'
+    },
+    cookies: {
+      type: Map,
+      of: String,
+      default: new Map()
     }
   },
   addresses: [{

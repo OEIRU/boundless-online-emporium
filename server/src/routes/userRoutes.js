@@ -1,4 +1,3 @@
-
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
@@ -363,6 +362,46 @@ router.delete('/address/:addressId', authenticate, async (req, res) => {
       message: 'Address deleted successfully',
       addresses: user.addresses
     });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Sync user preferences
+router.post('/preferences/sync', authenticate, async (req, res) => {
+  try {
+    const { userId, preferences } = req.body;
+    
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // Update user preferences in database
+    user.preferences = {
+      ...user.preferences,
+      cookies: preferences
+    };
+    
+    await user.save();
+    
+    res.json({ message: 'Preferences synced successfully' });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Get user preferences
+router.get('/preferences/:userId', authenticate, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json(user.preferences?.cookies || {});
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

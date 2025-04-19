@@ -1,4 +1,3 @@
-
 type CookieOptions = {
   expires?: Date | number | string;
   path?: string;
@@ -150,6 +149,63 @@ class CookieService {
   isCategoryAllowed(category: string): boolean {
     const consent = this.getConsent();
     return consent[category] === true;
+  }
+
+  /**
+   * Sync user preferences with server after login
+   * @param userId User ID for preferences sync
+   */
+  async syncUserPreferences(userId: string): Promise<void> {
+    try {
+      // Get all current preferences
+      const localPreferences = this.getAll();
+      
+      // Send to server
+      await fetch('/api/users/preferences/sync', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify({
+          userId,
+          preferences: localPreferences
+        })
+      });
+    } catch (error) {
+      console.error('Error syncing preferences:', error);
+    }
+  }
+
+  /**
+   * Load user preferences from server
+   * @param userId User ID to load preferences for
+   */
+  async loadUserPreferences(userId: string): Promise<void> {
+    try {
+      const response = await fetch(`/api/users/preferences/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+      });
+      
+      if (response.ok) {
+        const serverPreferences = await response.json();
+        
+        // Update local cookies with server data
+        Object.entries(serverPreferences).forEach(([key, value]) => {
+          if (key !== 'cookie_consent') { // Don't override consent settings
+            this.set(key, String(value), {
+              expires: 365,
+              path: '/',
+              sameSite: 'strict'
+            });
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error loading preferences:', error);
+    }
   }
 }
 
