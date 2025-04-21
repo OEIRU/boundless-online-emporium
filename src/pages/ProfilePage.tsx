@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -29,6 +28,7 @@ import {
   Shield,
   Palette,
   MapPin,
+  Image
 } from 'lucide-react';
 
 // Import profile components
@@ -66,16 +66,77 @@ const ProfilePage = () => {
     return null; // Will redirect via useEffect
   }
 
+  // User metrics (fallback to zeros)
+  const stats = user.stats || {};
+  const moviesWatched = stats.moviesWatched || 0;
+  const totalMinutes = stats.totalMinutesWatched || 0;
+  const favorites = stats.favorites || 0;
+  const listsCreated = stats.listsCreated || 0;
+  const followers = stats.followers || 0;
+  const following = stats.following || 0;
+
   return (
     <PageLayout showCategories={false}>
       <div className="container max-w-6xl py-10">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Личный кабинет</h1>
-          <Button variant="outline" onClick={logout} className="flex items-center">
-            <LogOut className="h-4 w-4 mr-2" />
-            Выйти
-          </Button>
-        </div>
+        {/* Карточка с приветствием, аватаром и метриками */}
+        <Card className="mb-8 bg-gradient-to-tr from-white/60 to-purple-100/70 dark:from-gray-900/60 dark:to-purple-900/10 shadow-xl border-0">
+          <CardContent className="flex flex-col md:flex-row items-center md:items-end justify-between py-8 md:py-8">
+            <div className="flex gap-6 items-center">
+              {/* Аватар пользователя */}
+              <div className="relative">
+                <div className="rounded-full bg-gradient-to-br from-purple-300 via-purple-400 to-purple-600 h-24 w-24 flex items-center justify-center shadow-xl overflow-hidden">
+                  {user.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt="avatar"
+                      className="object-cover h-full w-full"
+                    />
+                  ) : (
+                    <UserCircle className="w-16 h-16 text-white/60" />
+                  )}
+                </div>
+              </div>
+              <div>
+                <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-1">
+                  Привет, {user.firstName}!
+                </h2>
+                <div className="text-gray-500 dark:text-gray-300 text-base">
+                  <span>{user.email}</span>
+                </div>
+              </div>
+            </div>
+            <div className="w-full md:w-auto mt-8 md:mt-0 flex gap-3 justify-between md:justify-end">
+              <div className="flex flex-col items-center px-3">
+                <span className="font-bold text-lg text-purple-600">{moviesWatched}</span>
+                <span className="text-xs text-gray-500">Фильмы<br />просмотрено</span>
+              </div>
+              <div className="flex flex-col items-center px-3">
+                <span className="font-bold text-lg text-purple-600">{listsCreated}</span>
+                <span className="text-xs text-gray-500">Списков<br />создано</span>
+              </div>
+              <div className="flex flex-col items-center px-3">
+                <span className="font-bold text-lg text-purple-600">{favorites}</span>
+                <span className="text-xs text-gray-500">Любимых<br />фильмов</span>
+              </div>
+              <div className="flex flex-col items-center px-3">
+                <span className="font-bold text-lg text-purple-600">{totalMinutes}</span>
+                <span className="text-xs text-gray-500">Минут<br />просмотра</span>
+              </div>
+              <div className="flex flex-col items-center px-3">
+                <span className="font-bold text-lg text-purple-600">{followers}</span>
+                <span className="text-xs text-gray-500">Подписчиков</span>
+              </div>
+              <div className="flex flex-col items-center px-3">
+                <span className="font-bold text-lg text-purple-600">{following}</span>
+                <span className="text-xs text-gray-500">Подписок</span>
+              </div>
+            </div>
+            <Button variant="outline" onClick={logout} className="flex items-center mt-8 md:mt-0 md:ml-8">
+              <LogOut className="h-4 w-4 mr-2" />
+              Выйти
+            </Button>
+          </CardContent>
+        </Card>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="w-full border-b pb-0 justify-start">
