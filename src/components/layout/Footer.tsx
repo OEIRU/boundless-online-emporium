@@ -1,7 +1,7 @@
 
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { CheckCircle, Film, Twitter, Instagram, Facebook, GitHub } from 'lucide-react';
+import { CheckCircle, Film, Twitter, Instagram, Facebook, Github } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 const Footer = () => {
@@ -115,7 +115,7 @@ const Footer = () => {
                 <Facebook className="w-5 h-5" />
               </a>
               <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
-                <GitHub className="w-5 h-5" />
+                <Github className="w-5 h-5" />
               </a>
             </div>
           </div>
