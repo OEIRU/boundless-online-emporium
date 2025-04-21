@@ -5,7 +5,6 @@ import Footer from './Footer';
 
 interface PageLayoutProps {
   children: ReactNode;
-  showCategories?: boolean;
 }
 
 const PageLayout = ({ children }: PageLayoutProps) => {
