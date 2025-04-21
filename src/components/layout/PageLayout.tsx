@@ -5,9 +5,10 @@ import Footer from './Footer';
 
 interface PageLayoutProps {
   children: ReactNode;
+  showCategories?: boolean;
 }
 
-const PageLayout = ({ children }: PageLayoutProps) => {
+const PageLayout = ({ children, showCategories = true }: PageLayoutProps) => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
