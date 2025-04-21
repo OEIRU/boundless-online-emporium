@@ -1,7 +1,6 @@
 
 import { ReactNode } from 'react';
 import Navbar from './Navbar';
-import CategoryNav from './CategoryNav';
 import Footer from './Footer';
 
 interface PageLayoutProps {
@@ -9,12 +8,10 @@ interface PageLayoutProps {
   showCategories?: boolean;
 }
 
-const PageLayout = ({ children, showCategories = true }: PageLayoutProps) => {
+const PageLayout = ({ children }: PageLayoutProps) => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      {/* Убрали категории из верхней панели */}
-      {/* {showCategories && <CategoryNav />} */}
       <main className="flex-grow container mx-auto px-4 py-6">
         {children}
       </main>
