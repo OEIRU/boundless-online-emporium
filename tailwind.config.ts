@@ -63,15 +63,13 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Add store theme colors
-				store: {
-					purple: '#8B54F7',
-					'purple-light': '#A77FFF',
-					'purple-dark': '#6438C7',
-					pink: '#FF49DB',
-					gray: '#F3F4F6',
-					'card-hover': '#F9FAFB'
-				}
+				// Специальные цвета для сайта фильмов
+				'movie-red': '#E50914',
+				'movie-gold': '#FFCA28',
+				'rating-green': '#4CAF50',
+				'rating-blue': '#2196F3',
+				'rating-yellow': '#FFC107',
+				'rating-red': '#F44336',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -104,13 +102,26 @@ export default {
 						opacity: "1",
 						transform: "translateY(0)"
 					}
+				},
+				'poster-hover': {
+					"0%": {
+						transform: "scale(1)"
+					},
+					"100%": {
+						transform: "scale(1.05)"
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-				'fade-in': 'fade-in 0.3s ease-out'
-			}
+				'fade-in': 'fade-in 0.3s ease-out',
+				'poster-hover': 'poster-hover 0.3s ease-out forwards'
+			},
+			backgroundImage: {
+				'hero-pattern': 'linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9))',
+				'card-gradient': 'linear-gradient(to bottom, hsl(var(--card)), hsl(var(--card)) 80%, hsl(var(--background)))'
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],

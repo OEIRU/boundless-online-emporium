@@ -1,3 +1,4 @@
+
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
@@ -13,58 +14,80 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  firstName: {
+  username: {
     type: String,
     required: true,
+    unique: true,
+    trim: true
+  },
+  firstName: {
+    type: String,
     trim: true
   },
   lastName: {
     type: String,
-    required: true,
     trim: true
   },
   role: {
     type: String,
-    enum: ['customer', 'admin'],
-    default: 'customer'
+    enum: ['user', 'admin', 'moderator'],
+    default: 'user'
   },
-  phoneNumber: {
+  bio: {
     type: String,
-    trim: true
-  },
-  birthDate: {
-    type: Date
+    maxlength: 500
   },
   avatar: {
     type: String
   },
-  newsletter: {
-    type: Boolean,
-    default: false
+  location: {
+    type: String
   },
-  preferences: {
-    notifications: {
-      email: {
-        type: Boolean,
-        default: true
-      },
-      sms: {
-        type: Boolean,
-        default: false
-      },
-      promotions: {
-        type: Boolean,
-        default: true
-      },
-      orderUpdates: {
-        type: Boolean,
-        default: true
-      }
+  website: {
+    type: String
+  },
+  birthday: {
+    type: Date
+  },
+  joinDate: {
+    type: Date,
+    default: Date.now
+  },
+  privacy: {
+    profileVisibility: {
+      type: String,
+      enum: ['public', 'friends', 'private'],
+      default: 'public'
     },
+    activityVisibility: {
+      type: String,
+      enum: ['public', 'friends', 'private'],
+      default: 'public'
+    }
+  },
+  social: {
+    twitter: String,
+    instagram: String,
+    facebook: String
+  },
+  settings: {
     theme: {
       type: String,
       enum: ['light', 'dark', 'system'],
       default: 'system'
+    },
+    notifications: {
+      email: {
+        newFollower: { type: Boolean, default: true },
+        comments: { type: Boolean, default: true },
+        likes: { type: Boolean, default: true },
+        recommendations: { type: Boolean, default: true }
+      },
+      push: {
+        newFollower: { type: Boolean, default: true },
+        comments: { type: Boolean, default: true },
+        likes: { type: Boolean, default: true }
+      }
     },
     cookies: {
       type: Map,
@@ -72,35 +95,56 @@ const userSchema = new mongoose.Schema({
       default: new Map()
     }
   },
-  addresses: [{
-    street: {
-      type: String,
-      required: true
+  stats: {
+    moviesWatched: { type: Number, default: 0 },
+    totalMinutesWatched: { type: Number, default: 0 },
+    listsCreated: { type: Number, default: 0 },
+    followers: { type: Number, default: 0 },
+    following: { type: Number, default: 0 }
+  },
+  watchlist: [{
+    movie: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Movie'
     },
-    city: {
-      type: String,
-      required: true
-    },
-    state: {
-      type: String,
-      required: true
-    },
-    zipCode: {
-      type: String,
-      required: true
-    },
-    country: {
-      type: String,
-      required: true
-    },
-    isDefault: {
-      type: Boolean,
-      default: false
+    addedAt: {
+      type: Date,
+      default: Date.now
     }
   }],
-  wishlist: [{
+  watched: [{
+    movie: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Movie'
+    },
+    watchedAt: {
+      type: Date,
+      default: Date.now
+    },
+    rating: {
+      type: Number,
+      min: 1,
+      max: 10
+    },
+    review: String,
+    liked: Boolean,
+    rewatch: Boolean
+  }],
+  favorites: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product'
+    ref: 'Movie'
+  }],
+  lists: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'List'
+  }],
+  followers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  following: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   }],
   createdAt: {
     type: Date,
