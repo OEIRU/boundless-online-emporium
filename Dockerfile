@@ -30,9 +30,6 @@ LABEL maintainer="WildStore Team <info@wildstore.ru>"
 LABEL version="1.0.0"
 LABEL description="WildStore E-Commerce Frontend"
 
-# Set ENV variable that can be overridden
-ENV API_URL=/api
-
 # Create a healthcheck
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD [ "wget", "-q", "--spider", "http://localhost/index.html" ]
 

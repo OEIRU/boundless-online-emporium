@@ -13,6 +13,8 @@ services:
       - api
     networks:
       - app-network
+    environment:
+      - VITE_API_URL=/api
     restart: unless-stopped
 
   # Backend API Server
@@ -29,6 +31,7 @@ services:
       - PORT=3000
       - NODE_ENV=${NODE_ENV:-development}
       - JWT_SECRET=${JWT_SECRET:-your_secure_jwt_secret_key}
+      - CORS_ORIGIN=http://localhost:80,http://frontend:80
     networks:
       - app-network
     volumes:
