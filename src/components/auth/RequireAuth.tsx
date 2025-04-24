@@ -36,7 +36,7 @@ const RequireAuth = ({ children }: RequireAuthProps) => {
   }, [isAuthenticated, refreshToken]);
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-screen">Загрузка...</div>;
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
   if (!isAuthenticated) {

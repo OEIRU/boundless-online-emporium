@@ -12,10 +12,10 @@ class ErrorService {
   private errorHandlers: ((error: ErrorDetails, level: ErrorLevel) => void)[] = [];
 
   /**
-   * Обработать ошибку
-   * @param error Ошибка или детали ошибки
-   * @param level Уровень серьезности ошибки
-   * @param context Дополнительный контекст ошибки
+   * Handle an error
+   * @param error Error or error details
+   * @param level Error severity level
+   * @param context Additional error context
    */
   handleError(error: Error | ErrorDetails, level: ErrorLevel = 'error', context?: Record<string, any>): void {
     let errorDetails: ErrorDetails;
@@ -33,7 +33,7 @@ class ErrorService {
       };
     }
 
-    // Вызываем все зарегистрированные обработчики ошибок
+    // Call all registered error handlers
     this.errorHandlers.forEach(handler => {
       try {
         handler(errorDetails, level);
@@ -42,30 +42,30 @@ class ErrorService {
       }
     });
 
-    // Всегда логируем в консоль
+    // Always log to console
     this.logToConsole(errorDetails, level);
   }
 
   /**
-   * Добавить обработчик ошибок
-   * @param handler Функция-обработчик ошибок
+   * Add an error handler
+   * @param handler Error handler function
    */
   addErrorHandler(handler: (error: ErrorDetails, level: ErrorLevel) => void): void {
     this.errorHandlers.push(handler);
   }
 
   /**
-   * Удалить обработчик ошибок
-   * @param handler Функция-обработчик ошибок для удаления
+   * Remove an error handler
+   * @param handler Error handler function to remove
    */
   removeErrorHandler(handler: (error: ErrorDetails, level: ErrorLevel) => void): void {
     this.errorHandlers = this.errorHandlers.filter(h => h !== handler);
   }
 
   /**
-   * Логировать ошибку в консоль
-   * @param error Детали ошибки
-   * @param level Уровень серьезности ошибки
+   * Log error to console
+   * @param error Error details
+   * @param level Error severity level
    */
   private logToConsole(error: ErrorDetails, level: ErrorLevel): void {
     const timestamp = new Date().toISOString();
@@ -86,5 +86,5 @@ class ErrorService {
   }
 }
 
-// Экспортируем один экземпляр для использования во всем приложении
+// Export a single instance for use throughout the application
 export const errorService = new ErrorService();

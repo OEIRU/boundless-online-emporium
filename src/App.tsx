@@ -8,7 +8,6 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import MovieDetail from "./pages/MovieDetail";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -34,13 +33,13 @@ import TermsPage from "./pages/legal/TermsPage";
 import PrivacyPage from "./pages/legal/PrivacyPage";
 import CookiesPage from "./pages/legal/CookiesPage";
 
-// Создаем новый экземпляр QueryClient с настройками для обработки ошибок и кэширования
+// Create a new QueryClient instance with settings for error handling and caching
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
-      staleTime: 300000, // 5 минут
-      gcTime: 600000, // 10 минут (заменил cacheTime на gcTime)
+      staleTime: 300000, // 5 minutes
+      gcTime: 600000, // 10 minutes
       refetchOnWindowFocus: false,
     },
   },
@@ -48,7 +47,7 @@ const queryClient = new QueryClient({
 
 const App = () => {
   useEffect(() => {
-    logService.info('CinemaVerse application initialized');
+    logService.info('WildStore application initialized');
   }, []);
 
   return (
@@ -61,7 +60,6 @@ const App = () => {
               <Sonner />
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/movie/:id" element={<MovieDetail />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/search" element={<SearchPage />} />
@@ -74,24 +72,26 @@ const App = () => {
                   </RequireAuth>
                 } />
                 
-                {/* Страницы помощи */}
+                {/* Help pages */}
                 <Route path="/help" element={<HelpPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/faq" element={<FAQPage />} />
                 
-                {/* Страницы о компании */}
+                {/* About company pages */}
                 <Route path="/about" element={<HistoryPage />} />
                 <Route path="/about/history" element={<HistoryPage />} />
                 <Route path="/about/careers" element={<CareersPage />} />
                 <Route path="/about/press" element={<PressPage />} />
                 <Route path="/about/sustainability" element={<SustainabilityPage />} />
                 
-                {/* Юридические страницы */}
+                {/* Legal pages */}
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/cookies" element={<CookiesPage />} />
                 
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                {/* Admin routes could go here if needed */}
+                
+                {/* Catch-all route */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </CartProvider>

@@ -20,8 +20,8 @@ import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
-  email: z.string().email('Введите корректный email'),
-  password: z.string().min(6, 'Пароль должен быть не менее 6 символов'),
+  email: z.string().email('Please enter a valid email'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
 const LoginPage = () => {
@@ -43,7 +43,7 @@ const LoginPage = () => {
       await login(values.email, values.password);
       navigate('/profile');
     } catch (error) {
-      console.error('Ошибка входа:', error);
+      console.error('Login error:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -52,7 +52,7 @@ const LoginPage = () => {
   return (
     <PageLayout showCategories={false}>
       <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Вход в аккаунт</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">Sign In</h1>
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -75,7 +75,7 @@ const LoginPage = () => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Пароль</FormLabel>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
                     <Input type="password" placeholder="••••••" {...field} />
                   </FormControl>
@@ -92,10 +92,10 @@ const LoginPage = () => {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Загрузка...
+                  Loading...
                 </>
               ) : (
-                'Войти'
+                'Sign In'
               )}
             </Button>
           </form>
@@ -103,9 +103,9 @@ const LoginPage = () => {
         
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            Еще нет аккаунта?{' '}
+            Don't have an account?{' '}
             <Link to="/register" className="text-store-purple hover:underline">
-              Зарегистрироваться
+              Register
             </Link>
           </p>
         </div>

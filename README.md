@@ -15,7 +15,7 @@ A modern e-commerce platform built with React, Node.js, and MongoDB, containeriz
 
 ## Tech Stack
 
-- **Frontend**: React, Tailwind CSS, shadcn/ui
+- **Frontend**: React, TypeScript, Tailwind CSS, shadcn/ui
 - **Backend**: Node.js, Express
 - **Database**: MongoDB
 - **Containerization**: Docker, Docker Compose
@@ -48,13 +48,19 @@ A modern e-commerce platform built with React, Node.js, and MongoDB, containeriz
 ```
 .
 ├── src/                 # Frontend React application
+│   ├── components/      # Reusable UI components
+│   ├── contexts/        # React contexts
+│   ├── hooks/           # Custom React hooks
+│   ├── pages/           # Application pages
+│   ├── services/        # API services
+│   └── utils/           # Utility functions
 ├── server/              # Backend Node.js API
 │   ├── src/             # API source code
+│   │   ├── middleware/  # Express middleware
 │   │   ├── models/      # MongoDB models
 │   │   ├── routes/      # API routes
 │   │   └── index.js     # API entry point
-│   ├── Dockerfile       # Backend Dockerfile
-│   └── package.json     # Backend dependencies
+│   └── Dockerfile       # Backend Dockerfile
 ├── Dockerfile           # Frontend Dockerfile
 ├── docker-compose.yml   # Docker Compose configuration
 ├── nginx.conf           # Nginx configuration for frontend
@@ -80,4 +86,4 @@ For local development without Docker:
 
 ## License
 
-This project is licensed under the GNU GPL License.
+This project is licensed under the MIT License.
