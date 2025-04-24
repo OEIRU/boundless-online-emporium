@@ -20,6 +20,21 @@ const ProductCard = ({ id, title, price, originalPrice, image, category }: Produ
   const { toast } = useToast();
   const { addToCart } = useCart();
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  
+  // Cat placeholder images - will use these temporarily
+  const catPlaceholders = [
+    "https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop&w=500",
+    "https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?auto=format&fit=crop&w=500",
+    "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=500",
+    "https://images.unsplash.com/photo-1573865526739-10659fec78a5?auto=format&fit=crop&w=500"
+  ];
+  
+  // Get a consistent cat image based on product id
+  const getCatImage = (productId: string) => {
+    const index = productId.charCodeAt(0) % catPlaceholders.length;
+    return catPlaceholders[index];
+  };
   
   const toggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -36,15 +51,14 @@ const ProductCard = ({ id, title, price, originalPrice, image, category }: Produ
     e.preventDefault();
     e.stopPropagation();
     
-    // Добавляем товар в корзину с базовыми параметрами
     addToCart({
       productId: id,
       title: title,
       price: price,
       quantity: 1,
-      size: 'M', // Значение по умолчанию
-      color: 'Черный', // Значение по умолчанию
-      image: image
+      size: 'M',
+      color: 'Черный',
+      image: imageError ? getCatImage(id) : image
     });
     
     toast({
@@ -55,6 +69,10 @@ const ProductCard = ({ id, title, price, originalPrice, image, category }: Produ
   };
   
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+  
+  const handleImageError = () => {
+    setImageError(true);
+  };
   
   return (
     <Link to={`/product/${id}`} className="block h-full">
@@ -75,8 +93,9 @@ const ProductCard = ({ id, title, price, originalPrice, image, category }: Produ
           </Button>
           <div className="overflow-hidden aspect-[3/4]">
             <img 
-              src={image} 
+              src={imageError ? getCatImage(id) : image} 
               alt={title}
+              onError={handleImageError}
               className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" 
             />
           </div>

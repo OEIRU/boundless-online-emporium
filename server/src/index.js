@@ -17,14 +17,32 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Health check route - must come first for quick response
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// API routes
+app.use('/api/products', productRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Root route
 app.get('/', (req, res) => {
   res.json({ 
     message: 'WildStore API Server',
     version: '1.0.0',
+    status: 'running',
     endpoints: [
       '/api/products',
       '/api/categories',
@@ -36,22 +54,8 @@ app.get('/', (req, res) => {
   });
 });
 
-// API routes
-app.use('/api/products', productRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/cart', cartRoutes);
-app.use('/api/orders', orderRoutes);
-
-// Health check route
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
-});
-
-// Обработка 404 для несуществующих API маршрутов
+// Error handling middleware
 app.use(notFound);
-
-// Централизованная обработка ошибок
 app.use(errorHandler);
 
 // Connect to MongoDB
@@ -72,14 +76,22 @@ mongoose.connect(process.env.MONGODB_URI, {
   process.exit(1);
 });
 
-// Обработка необработанных исключений
+// Handle graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  mongoose.connection.close(() => {
+    console.log('MongoDB connection closed');
+    process.exit(0);
+  });
+});
+
+// Error handling
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);
   process.exit(1);
 });
 
-// Обработка необработанных отклонений промисов
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1);
+  // Let the server continue running but log the issue
 });

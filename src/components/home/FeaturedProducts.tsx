@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import ProductCard, { ProductProps } from '@/components/products/ProductCard';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,7 @@ const featuredProductsData: ProductProps[] = [
     title: 'Stylish Summer Dress',
     price: 39.99,
     originalPrice: 59.99,
-    image: 'https://images.unsplash.com/photo-1612336307429-8a898d10e223?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+    image: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop&w=500',
     category: 'Women'
   },
   {
@@ -19,7 +18,7 @@ const featuredProductsData: ProductProps[] = [
     title: 'Men\'s Casual Shirt',
     price: 29.99,
     originalPrice: 44.99,
-    image: 'https://images.unsplash.com/photo-1618517351616-38fb9c5210c6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+    image: 'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?auto=format&fit=crop&w=500',
     category: 'Men'
   },
   {
@@ -27,7 +26,7 @@ const featuredProductsData: ProductProps[] = [
     title: 'Wireless Headphones',
     price: 89.99,
     originalPrice: 129.99,
-    image: 'https://images.unsplash.com/photo-1505751171710-1f6d0ace5a85?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    image: 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?auto=format&fit=crop&w=500',
     category: 'Electronics'
   },
   {
@@ -35,7 +34,7 @@ const featuredProductsData: ProductProps[] = [
     title: 'Smart Watch Series 5',
     price: 199.99,
     originalPrice: 249.99,
-    image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1472&q=80',
+    image: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=500',
     category: 'Electronics'
   },
   {
@@ -43,7 +42,7 @@ const featuredProductsData: ProductProps[] = [
     title: 'Running Shoes',
     price: 79.99,
     originalPrice: 99.99,
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    image: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop&w=500',
     category: 'Sports'
   },
   {
@@ -51,7 +50,7 @@ const featuredProductsData: ProductProps[] = [
     title: 'Home Decorative Pillow',
     price: 24.99,
     originalPrice: 34.99,
-    image: 'https://images.unsplash.com/photo-1579656592043-a20e25a4aa4b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+    image: 'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?auto=format&fit=crop&w=500',
     category: 'Home'
   }
 ];
